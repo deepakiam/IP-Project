@@ -1,9 +1,21 @@
-#include <netinet/ip.h>
+#include<netinet/ip.h>
+#include<netinet/in.h>
+#include<<netinet/tcp.h>
 
-typedef struct (){
-Packet packet; //temp
+typedef struct{
+const unsigned char *packet;
 bool mark;
-struct Red_node* next;
-} Red_node;
+struct node* next;
+} node;
+
+void enqueue(node* node);
+
+void dequeue();
+
+void drop_packet(node* node);
+
+
+
+
 
 
