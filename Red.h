@@ -1,10 +1,12 @@
 #include<netinet/ip.h>
 #include<netinet/in.h>
 #include<<netinet/tcp.h>
+#include<time.h>
+#include<linux/sk_buff.h>
 
 typedef struct{
-const unsigned char *packet;
-bool mark;
+sk_buff *packet;
+bool marked;
 struct node* next;
 } node;
 
@@ -14,6 +16,7 @@ void dequeue();
 
 void drop_packet(node* node);
 
+int getTimeInterval();
 
 
 
