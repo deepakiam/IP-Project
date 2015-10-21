@@ -37,7 +37,7 @@ static unsigned int aqm_ hook(unsigned int hooknum, struct sk_buff **skb, const 
 /* Register the hook function */
 static struct nf_hook_ops nfhops = {
         .hook     = aqm_hook,                      // our hook function
-	.priority = NF_IP_PRI_FIRST,               // function registered with highest priorit
+		.priority = NF_IP_PRI_FIRST,               // function registered with highest priorit
         .hooknum  = NF_IP_FORWARD,                 // callback registered for this hook
         .pf       = NFPROTO_IPV4                   // protocol is IPv4 
 };

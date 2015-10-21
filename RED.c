@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <Red.h>
+#include <sys/time.h>
 
-
+struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions
+node* drop_pack = head;		//constant used in drop_packet function
 
 long get_idle_time_interval(){
-	time_t curr_time = time(NULL);
-	curr_time_ms = curr_time*1000;
-	return (curr_time_ms - (q_idle_time_start*1000)); 
+	struct timeval curr_time_ms = gettimeofday(NULL, NULL); 	//gives microsecond value, which is what we might require/
+	return (curr_time_ms - q_idle_time_start); 
 }
 
 void enqueue(node* node){
@@ -25,11 +26,33 @@ void dequeue(){
 	}
 	if(head == tail){
 		head = tail = NULL;
+		q_idle_time_start = gettimeofday(NULL, NULL);		//re-initialize idle time to current time
 		return;
 	}
 	node* head_node = head;
 	head = head->next;
 	free(head_node);
+}
+
+void drop_packet (){
+	//the drop_pack pointer will continue to point to the same memory location, 
+	//so we dont have to traverse the whole list again and again where we already deleted the marked packets.
+	int* temp = drop_pack->next;
+	while(temp != NULL)
+	{
+		if (temp->marked == true)
+		{
+			drop_pack->next = temp->next;
+			free(temp);
+			temp = drop_pack->next;
+		}
+		else
+		{
+			drop_pack = drop_pack->next;
+			temp = temp->next;
+		}
+	}
+	
 }
 
 node* red(sk_buff* packet){

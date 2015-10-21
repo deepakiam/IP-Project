@@ -14,7 +14,7 @@ void enqueue(node* node);
 
 void dequeue();
 
-void drop_packet(node* node);
+void drop_packet(node* node); //should it be node specific?? wont it just check the mark and drop it while traversing the linked list?
 
 int getTimeInterval();
 
