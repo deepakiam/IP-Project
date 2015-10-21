@@ -5,17 +5,6 @@
 #include <linux/netfilter_ipv4.h>
 #include<red.h>
 
-int is_wred = 0;
-int max_queue_size = 2000;
-int packet_count = -1;
-int avg_queue_size = 0;
-int priority = 0;
-time_t q_idle_time_start;
-
-node *head = NULL;
-node *tail = NULL;
-
-
 /* Create the AQM hook function */
 static unsigned int aqm_ hook(unsigned int hooknum, struct sk_buff **skb, const struct net_device *in,
                        const struct net_device *out, int (*okfn)(struct sk_buff *)){
