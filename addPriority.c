@@ -11,11 +11,21 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 {
 	
 	sock_buff = *skb;
-	
+	unsigned shor ip_len;
+	struct sockaddr_in src_addr;
+	unsigned int tot_len;
+
+
 	//extract header info on incoming pkt
 	
-	ip_header = (struct iphdr *)	skb_network_sock_buff);	//extract ip_header
+	ip_header = (struct iphdr *)skb_network_header(sock_buff);	//extract ip_header
 	
+	ip_len = ip_header->ihl * 4;				//no. of words of IP header
+	src_addr = ip_header->saddr;			//source ip address
+	tot_len = ntohs(ip_header->tot_len);			//total packet length
+		
+	
+
 	//determine the class of packet from source
 
 	//set priority in the header and modify header details
