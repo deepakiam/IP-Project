@@ -92,7 +92,7 @@ int isInRange(char *start, char *end, char *check)
 	parseIPV4(check,address_array[2]);
 
 	for(b=0;b<4;b++)
-		if(((address_array[0][b] <= address_array[2][b]) && (c[2][b] <= address_array[1][b])) == 0) return 0;
+		if(((address_array[0][b] <= address_array[2][b]) && (address_array[2][b] <= address_array[1][b])) == 0) return 0;
 
 	return 1;
 
