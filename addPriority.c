@@ -3,6 +3,8 @@
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 #include <inttypes.h>
+#include <ams/types.h>
+
 static struct nf_hook_ops nfho;         
 struct sk_buff *sock_buff;	//current buffer
 struct iphdr *ip_header;	//ip header pointer
@@ -39,19 +41,34 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
 	__u8 ECN;		//ECN values
- 
-	//Address Class Range : 100.0.0.1 - 100.0.0.63   100.0.0.64 - 100.0.0.127 100.0.0.128 - 100.0.0.255
-	
-	if(strcmp(incoming_addr,"100.0.0.0") >= 0  && strcmp(incoming_addr,"100.0.0.64") < 0)			//Class A
-	{
-		
-	}else if(strcmp(incoming_addr,"100.0.0.63") > 0  && strcmp(incoming_addr,"100.0.0.128") < 0)		//Class B
-	{
-			
-	}else if(strcmp(incoming_addr,"100.0.0.127") > 0  && strcmp(incoming_addr,"100.0.0.256") < 0)		//Class C
-	{
 
+	/* ECN_MASK AND origin_tos will give ECN values*/ 
+	ECN = origin_tos & ECN_mask;
+
+	/* Currently we are implementing on a limited class range. 
+	   To address this dynamically, use of configuration file will be used to check against the class.
+	   Address Class Range will be as follows: 
+	Class A : 	Higest Priority :	100.0.0.1 - 100.0.0.63   
+	Class B :	Medium Priority :	100.0.0.64 - 100.0.0.127 
+	Class C :	Lowest Priority :	100.0.0.128 - 100.0.0.255
+	*/
+	
+	__u8 priority;
+
+	if(strcmp(incoming_addr,"100.0.0.0") >= 0  && strcmp(incoming_addr,"100.0.0.64") < 0)			//Class A  Bit format : 000 001 XX
+	{
+		priority = 4;
+			
+	}else if(strcmp(incoming_addr,"100.0.0.63") > 0  && strcmp(incoming_addr,"100.0.0.128") < 0)		//Class B  Bit format : 000 011 XX
+	{
+		priority = 12;
+			
+	}else if(strcmp(incoming_addr,"100.0.0.127") > 0  && strcmp(incoming_addr,"100.0.0.256") < 0)		//Class C  Bit format : 000 111 XX
+	{
+		priority = 28;
 	}
+
+	__u8 new_tos = priority & ECN;	
 
 	//set priority in the header and modify header details
 
@@ -77,4 +94,10 @@ int init_module()
 void cleanup_module()
 {
   nf_unregister_hook(&nfho);                     //unregister
+}
+
+uint32 getIntegerIP(char ip4str[])
+{
+	char [4][] ip_bytes;
+			
 }
