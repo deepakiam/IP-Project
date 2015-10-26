@@ -55,15 +55,15 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	
 	__u8 priority;
 
-	if(strcmp(incoming_addr,"100.0.0.0") >= 0  && strcmp(incoming_addr,"100.0.0.64") < 0)			//Class A  Bit format : 000 001 XX
+	if(isInRange("100.0.0.0","100.0.0.63",incoming_addr) == 1)			//Class A  Bit format : 000 001 XX
 	{
 		priority = 4;
 			
-	}else if(strcmp(incoming_addr,"100.0.0.63") > 0  && strcmp(incoming_addr,"100.0.0.128") < 0)		//Class B  Bit format : 000 011 XX
+	}else if(isInRange("100.0.0.64","100.0.0.127",incoming_addr) == 1)		//Class B  Bit format : 000 011 XX
 	{
 		priority = 12;
 			
-	}else if(strcmp(incoming_addr,"100.0.0.127") > 0  && strcmp(incoming_addr,"100.0.0.256") < 0)		//Class C  Bit format : 000 111 XX
+	}else if(isInRange("100.0.0.128","100.0.0.255",incoming_addr) == 1)		//Class C  Bit format : 000 111 XX
 	{
 		priority = 28;
 	}
@@ -76,6 +76,34 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 
 	//forward the packet
 	
+}
+
+
+/*Function to check if *check lies within the IPv4 address range of *start and *end inclusive*/
+
+int isInRange(char *start, char *end, char *check)	
+{
+	int address_array[3][4];
+	int a=0;
+	int b=0;
+	
+	parseIPV4(start,address_array[0]);	
+	parseIPV4(end,address_array[1]);
+	parseIPV4(check,address_array[2]);
+
+	for(b=0;b<4;b++)
+		if(((address_array[0][b] <= address_array[2][b]) && (c[2][b] <= address_array[1][b])) == 0) return 0;
+
+	return 1;
+
+}
+
+/*Function to separate octets of IPv4 address*/
+
+char * parseIPV4(char* ipAddress, int arr[4]) {
+ 	
+	sscanf(ipAddress, "%d.%d.%d.%d", &arr[3], &arr[2], &arr[1], &arr[0]);
+	return arr;	
 }
 
 
@@ -96,8 +124,3 @@ void cleanup_module()
   nf_unregister_hook(&nfho);                     //unregister
 }
 
-uint32 getIntegerIP(char ip4str[])
-{
-	char [4][] ip_bytes;
-			
-}
