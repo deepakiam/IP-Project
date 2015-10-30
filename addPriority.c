@@ -2,18 +2,25 @@
 #include <linux/module.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
+#include <linux/init.h>
 #include <inttypes.h>
-#include <ams/types.h>
+#include <ams-generic/types.h>
+#include <net/checksum.h>
+
 
 static struct nf_hook_ops nfho;         
 struct sk_buff *sock_buff;	//current buffer
 struct iphdr *ip_header;	//ip header pointer
 
+unsigned short checksum(int iphl, unsigned short ipheader[]);
+char * parseIPV4(char* ipAddress, int arr[4]);
+
+
 unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
 {
 	
 	sock_buff = *skb;
-	unsigned shor ip_len;
+	unsigned short ip_len;
 	struct sockaddr_in src_addr;
 	unsigned int tot_len;
 	__u8 tos_bits;	//DSCP(6) + ECN(2) 
@@ -27,7 +34,7 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	ip_len = ip_header->ihl * 4;				//no. of words of IP header
 
 	memset(&src_addr, 0, sizeof(src_addr));
-	src_addr.sin_addr.s_addr = iph_header->saddr			        //source ip address
+	src_addr.sin_addr.s_addr = iph_header->saddr;			        //source ip address
 	
 	tot_len = ntohs(ip_header->tot_len);			//total packet length
 	tos_bits = ip_header->tos;				//tos bits
@@ -68,13 +75,19 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 		priority = 28;
 	}
 
-	__u8 new_tos = priority & ECN;	
+	__u8 new_tos = priority | ECN;	
 
 	//set priority in the header and modify header details
 
+	ip_header->tos = new_tos; 
+
 	//recalulate checksum and set
 
+	csum_replace2(&ip_header->check, htons(origin_tos), htons(new_tos));
+
 	//forward the packet
+
+	return NF_ACCEPT;
 	
 }
 
@@ -107,10 +120,34 @@ char * parseIPV4(char* ipAddress, int arr[4]) {
 }
 
 
+/*Function to calculate header checksum*/
+
+unsigned short checksum(int iphl, unsigned short ipheader[])
+{
+	unsigned long sum = 0;
+	unsigned short temp_tos_word =0;
+	int i=0;
+	for(;i<(iphl*2);i++)
+	{	
+		/*if(i == 0)
+		{	
+			temp_tos_word = ipheader[i] & 0xFF00;
+			ipheader[i] = temp_tos_word | newtos;
+		}*/
+		sum = sum + (unsigned long)ipheader[i];
+	}
+	
+	unsigned short t1 = sum&0XFF;		//get last 16 - bits
+	unsigned short t2 = (sum>>16)&0xFF;	//get carry forward
+	
+	return (~(t1 + t2));	//add the carry forward and sum and take 1's complement
+
+}
+
 int init_module()
 {
   nfho.hook = hook_setpriority;          	//hook function call
-  nfho.hooknum = NF_IP_FORWARD		//call when decsion is made for forwarding
+  nfho.hooknum = NF_IP_FORWARD;		//call when decsion is made for forwarding
   nfho.pf = PF_INET;                           		//IPV4 pkts
   nfho.priority = NF_IP_PRI_FIRST;             	//set to highest priority
   nf_register_hook(&nfho);                     	//register hook
