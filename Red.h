@@ -20,18 +20,13 @@ int avg_queue_size = 0;			//the average queue size
 int queue_size = 0;				//current queue size
 int packet_count = -1; 			//number of packets since last marked packet
 float pa = 0.0;					//probability values for marking the packets for dropping
-float pb = 0.0;
-float maxpb = 0.7;				//dummy value for maximum probability with which the packets 
+float pb = 0.0; 
 								//will be marked if the average queue size is between the two threshold values
-float wq = 0.1;					//weight given to current queue size while calculating average queue size
 
 struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions
 
 node* head=NULL, tail=NULL, drop_pack;
-
-#define maxthr		1700		//dummy value for maximum threshold of packets in the buffer (used while marking the packets for deletion)
-#define minthr		500			//dummy value for minimum threshold of packets in the buffer (used while marking the packets for deletion)
-#define constant	10			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
+int constant;			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
 
 
 
@@ -39,7 +34,7 @@ void enqueue(node* node);
 
 void dequeue();
 
-void drop_packet(node* node); //should it be node specific?? wont it just check the mark and drop it while traversing the linked list?
+void drop_packets();
 
 int getTimeInterval();
 
