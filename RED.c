@@ -37,9 +37,10 @@ void dequeue(){
 	head = head->next;
 	free(head_node);
 	queue_size--;
+	return;
 }
 
-void drop_packet (){
+void drop_packets(){
 	//the drop_pack pointer will continue to point to the same memory location, 
 	//so we dont have to traverse the whole list again and again where we already deleted the marked packets.
 	if (head == NULL)
@@ -65,7 +66,7 @@ void drop_packet (){
 	
 }
 
-node* red(sk_buff* packet){
+node* red(sk_buff* packet, int maxth, int minth, float wq, float maxpb){
 	int m, randm;
 	
 	node* new_node = (node*)malloc(sizeof(node));
@@ -84,10 +85,10 @@ node* red(sk_buff* packet){
 					
 				}
                 
-                if (minthr <= avg_queue_size && avg_queue_size < maxthr)
+                if (minth <= avg_queue_size && avg_queue_size < maxth)
                 {
                       		packet_count++;
-                     		pb = maxpb * ((avg_queue_size - minthr)/(maxthr - minthr));
+                     		pb = maxpb * ((avg_queue_size - minth)/(maxth - minth));
                        		pa = pb / (1 - (packet_count * pb));
 
                       		randm = rand() % 100;
@@ -98,7 +99,7 @@ node* red(sk_buff* packet){
                                		packet_count = 0;
                        		}
                 }
-                else if (maxthr <= avg_queue_size)
+                else if (maxth <= avg_queue_size)
                 {
                         
 							new_node->marked = 1;				//marked the packet for deletion
