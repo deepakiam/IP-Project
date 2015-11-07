@@ -3,7 +3,7 @@
 #include <linux/skbuff.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
-#include<red.h>
+#include "Red.h"
 
 int minths[6];					//array to hold min threshold values for each class
 int maxths[6];					//array to hold max threshold values for each class

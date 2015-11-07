@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <Red.h>
+#include "Red.h"
 #include <sys/time.h>
 
 struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions

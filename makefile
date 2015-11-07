@@ -1,4 +1,7 @@
-all:	redimpl	aqmimpl
+obj-m	+=	aqmmodule.o
+aqmmodule-y	:=	aqmimpl.o	redimpl.o
+KDIR	:=	/lib/modules/$(shell uname -r)/build
+pwd	:=	$(shell pwd)
 
 redimpl.o:	RED.c	Red.h
 	gcc	-c	RED.c	-o	redimpl.o
@@ -11,9 +14,5 @@ aqmimpl.o:	AQMCallback.c	Red.h
 
 aqmimpl:	aqmimpl.o
 	gcc	aqmimpl.o	-o	aqmimpl
-
-clean:
-	-rm	-f	redimpl.o
-	-rm	-f	redimpl
-	-rm	-f	aqmimpl.o
-	-rm	-f	aqmimpl
+default:
+	$(MAKE)	-C	$(KDIR)	M=$(pwd)	modules
