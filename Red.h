@@ -1,14 +1,15 @@
-#include <netinet/ip.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/time.h>
-#include <linux/sk_buff.h>
+#include <linux/ip.h>
+#include <linux/in.h>
+#include <linux/tcp.h>
+#include <linux/time.h>
+#include<linux/skbuff.h>
+#include<math.h>
 
 typedef struct{
-sk_buff *packet;
+struct sk_buff *packet;
 bool marked;
 struct node* next;
-} node;
+}node;
 
 int is_wred = 0;
 int max_queue_size = 2000;
@@ -23,20 +24,22 @@ float pa = 0.0;					//probability values for marking the packets for dropping
 float pb = 0.0; 
 								//will be marked if the average queue size is between the two threshold values
 
-struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions
+//struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions
 
-node* head=NULL, tail=NULL, drop_pack;
+struct node* head=NULL;
+struct node* tail=NULL;
+struct node*  drop_pack = NULL;
 int constant;			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
 
-
+struct node* red(struct sk_buff* packet, int maxth, int minth, float wq, float maxp);
 
 void enqueue(node* node);
 
-void dequeue();
+void dequeue(void);
 
-void drop_packets();
+void drop_packets(void);
 
-int getTimeInterval();
+int getTimeInterval(void);
 
 
 

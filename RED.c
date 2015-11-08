@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Red.h"
-#include <sys/time.h>
+#include <linux/time.h>
 
+//node* head=NULL;
+//node* tail=NULL;
 struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions
 node* drop_pack = head;		//constant used in drop_packet function
 

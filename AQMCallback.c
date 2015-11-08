@@ -1,6 +1,5 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
-#include <linux/skbuff.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 #include "Red.h"
@@ -13,10 +12,10 @@ int minthred, maxthred;				// min and max threshold for queue sizes for base RED
 float wqred, maxpbred;				//weight and maxpb for base RED implementation
 
 /* Create the AQM hook function */
-static unsigned int aqm_ hook(unsigned int hooknum, struct sk_buff **skb, const struct net_device *in,
+static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff **skb, const struct net_device *in,
                        const struct net_device *out, int (*okfn)(struct sk_buff *)){
         if(is_wred == 1){
-		int printk(KERN_INFO "WRED implemented");
+		printk(KERN_INFO "WRED implemented\n");
 		struct iphdr *ip_header = (struct iphdr *)skb_network_header(skb);
 		unsigned int tos =((unsigned int)ip_header->tos);		// get TOS field form the header
 		unsigned int tos_mask = 252;					// mask value set to  11111100 to get the DSCP bits
@@ -46,11 +45,11 @@ static unsigned int aqm_ hook(unsigned int hooknum, struct sk_buff **skb, const 
 		}
 		
         }else{
-		int printk(KERN_INFO "No WRED implemented");
+		printk(KERN_INFO "No WRED implemented");
 		enqueue(red(skb, minthred, maxthred, wqred, maxpbred));	//invoke red here for packet processing
 	}
 	
-	int printk(KERN_INFO "executing the AQM hook function");
+	printk(KERN_INFO "executing the AQM hook function");
 	return NF_ACCEPT;			   //after processing the packet, return NF_ACCEPT to let the packet pass
 }
 
