@@ -54,38 +54,40 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff **skb, const s
 }
 
 /* Register the hook function */
-static struct nf_hook_ops nfhops = {
-        .hook     = aqm_hook,                      // our hook function
-	.priority = NF_IP_PRI_FIRST,               // function registered with highest priorit
-        .hooknum  = NF_IP_FORWARD,                 // callback registered for this hook
-        .pf       = NFPROTO_IPV4                   // protocol is IPv4 
-};
+static struct nf_hook_ops nfhops;
 
 /* Kernel module init handler */
-static __init int my_init(void)
-{
-        FILE *conf_file;
-        char *mode = "r";
-        conf_file = fopen("conf.txt", mode);
-        fscanf(conf_file, "%d", &is_wred);
-	fscanf(conf_file, "%d %d %f %f ", &minthred, &maxthred, &wqred, &maxpbred);
-	fscanf(conf_file, "%d", &constant);
+//static int __init myinit(void);
+int init_module(void){
+        struct file  *conf_file;
+        
+        conf_file = filp_open("conf.txt", O_RDONLY, 0);
+        //fscanf(conf_file, "%d", &is_wred);
+	//fscanf(conf_file, "%d %d %f %f ", &minthred, &maxthred, &wqred, &maxpbred);
+	//fscanf(conf_file, "%d", &constant);
 	int n;
-	fscanf(conf_file, "%d",&n);
-	for(int i = 0; i < n; i++){
-		fscanf(conf_file, "%d",&minths[i]);
-		fscanf(conf_file, "%d",&maxths[i]);
-		fscanf(conf_file, "%f",&wqs[i]);
-		fscanf(conf_file, "%f",&maxpbs[i]);
-	} 
-	return nf_register_hook(&nfhops);
+	int i = 0;
+	//fscanf(conf_file, "%d",&n);
+	for(i = 0; i < n; i++){
+		//fscanf(conf_file, "%d",&minths[i]);
+		//fscanf(conf_file, "%d",&maxths[i]);
+		//fscanf(conf_file, "%f",&wqs[i]);
+		//fscanf(conf_file, "%f",&maxpbs[i]);
+	}
+	nfhops.hook = aqm_hook;				//hook function
+	nfhops.priority = NF_IP_PRI_FIRST;		//function registered for hughest priority
+	nfhops.hooknum = 2;			//callback for this hook
+	nfhops.pf = NFPROTO_IPV4; 			//protocol is IPv4
+	nf_register_hook(&nfhops);
+	return 0;
 }
 
 /* Kernel module exit handler */
-static __exit void my_exit(void)
-{
+//static int __exit void my_exit(void)
+void cleanup_module(void){
     nf_unregister_hook(&nfhops);
+	return 0;
 }
 
-module_init(my_init);
-module_exit(my_exit);
+//module_init(myinit);
+//module_exit(my_exit);

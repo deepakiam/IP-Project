@@ -1,16 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include<linux/skbuff.h>
 #include "Red.h"
 #include <linux/time.h>
 
-//node* head=NULL;
-//node* tail=NULL;
-struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions
-node* drop_pack = head;		//constant used in drop_packet function
+//drop_pack = head;		//constant used in drop_packet function
 
 
 long get_idle_time_interval(){
-	struct timeval curr_time_ms = gettimeofday(NULL, NULL); 	//gives microsecond value, which is what we might require/
+	struct timeval curr_time;
+	unsigned long curr_time_ms;
+	 do_gettimeofday(&curr_time); 	//gives microsecond value, which is what we might require/
+	curr_time_ms = (u32)((curr_time.tv_sec*1000) - (sys_tz.tz_minuteswest * 60000) );
 	return (curr_time_ms - q_idle_time_start); 
 }
 
@@ -22,7 +21,6 @@ void enqueue(node* node){
 	}
 	node->next=tail;
 	tail=node;
-	queue_size
 }
 
 void dequeue(){
@@ -55,7 +53,7 @@ void drop_packets(){
 		if (temp->marked == true)
 		{
 			drop_pack->next = temp->next;
-			free(temp);
+			kfree(temp);
 			temp = drop_pack->next;
 			queue_size--;
 		}
@@ -68,10 +66,10 @@ void drop_packets(){
 	
 }
 
-node* red(sk_buff* packet, int maxth, int minth, float wq, float maxpb){
+struct node* red(struct sk_buff* packet, int maxth, int minth, float wq, float maxpb){
 	int m, randm;
 	
-	node* new_node = (node*)malloc(sizeof(node));
+	node* new_node = kmalloc(sizeof(node), GFP_KERNEL);
 	new_node->packet = packet;
 	new_node->marked = 0;				//default marking is false
 	new_node->next = NULL;
@@ -79,11 +77,11 @@ node* red(sk_buff* packet, int maxth, int minth, float wq, float maxpb){
                 if (head == NULL && tail == NULL)
 						return new_node;
 				else if (head != NULL && tail != NULL)
-                        avg_queue_size = ((1-wq)*avg_queue_size) + (wq * queue_size);
+                        avg_queue_size = ((1.0-wq)*avg_queue_size) + (wq * queue_size);
                 else
                 {
-                        int m = constant * (time - q_idle_time_start);
-                        avg_queue_size = ((1 - wq) ^ m) * avg_queue_size;
+                        long m = constant * get_idle_time_interval();
+                        avg_queue_size = ((1.0 - wq) ^ m) * avg_queue_size;
 					
 				}
                 
@@ -91,7 +89,7 @@ node* red(sk_buff* packet, int maxth, int minth, float wq, float maxpb){
                 {
                       		packet_count++;
                      		pb = maxpb * ((avg_queue_size - minth)/(maxth - minth));
-                       		pa = pb / (1 - (packet_count * pb));
+                       		pa = pb / (1.0 - (packet_count * pb));
 
                       		randm = rand() % 100;
 

@@ -3,7 +3,6 @@
 #include <linux/tcp.h>
 #include <linux/time.h>
 #include<linux/skbuff.h>
-#include<math.h>
 
 typedef struct{
 struct sk_buff *packet;
@@ -24,7 +23,8 @@ float pa = 0.0;					//probability values for marking the packets for dropping
 float pb = 0.0; 
 								//will be marked if the average queue size is between the two threshold values
 
-//struct timeval q_idle_time_start = 0;	//global constant so that it can be used in all functions
+struct timeval q_idle_time_start;	//global constant so that it can be used in all functions
+unsigned long q_idle_time_start_ms = 0.0;
 
 struct node* head=NULL;
 struct node* tail=NULL;
@@ -40,6 +40,8 @@ void dequeue(void);
 void drop_packets(void);
 
 int getTimeInterval(void);
+
+long get_idle_time_interval(void);
 
 
 
