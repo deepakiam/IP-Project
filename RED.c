@@ -4,16 +4,21 @@
 
 //drop_pack = head;		//constant used in drop_packet function
 
-
 long get_idle_time_interval(){
 	struct timeval curr_time;
 	unsigned long curr_time_ms;
 	 do_gettimeofday(&curr_time); 	//gives microsecond value, which is what we might require/
 	curr_time_ms = (u32)((curr_time.tv_sec*1000) - (sys_tz.tz_minuteswest * 60000) );
-	return (curr_time_ms - q_idle_time_start); 
+	return (curr_time_ms - q_idle_time_start_ms); 
 }
 
-void enqueue(node* node){
+int get_random_number(){
+	int r;
+	get_random_bytes(&r, sizeof(r));
+	return(r%100);
+}
+
+void enqueue(struct node* node){
 	if(head == NULL && tail== NULL){
 		head = tail = node;
 		queue_size++;
@@ -21,6 +26,7 @@ void enqueue(node* node){
 	}
 	node->next=tail;
 	tail=node;
+	return;
 }
 
 void dequeue(){
@@ -30,12 +36,13 @@ void dequeue(){
 	if(head == tail){
 		head = tail = NULL;
 		queue_size--;
-		q_idle_time_start = gettimeofday(NULL, NULL);		//re-initialize idle time to current time
+		do_gettimeofday(&q_idle_time_start);
+		q_idle_time_start_ms =(u32) ((q_idle_time_start.tv_sec*1000) - (sys_tz.tz_minuteswest * 60000));
 		return;
 	}
-	node* head_node = head;
+	struct node* head_node = head;
 	head = head->next;
-	free(head_node);
+	kfree(head_node);
 	queue_size--;
 	return;
 }
@@ -47,7 +54,8 @@ void drop_packets(){
 		return;
 	else if(drop_pack == NULL)
 		drop_pack = head;
-	node* temp = drop_pack->next;
+	struct node* temp = kmalloc(sizeof(node), GFP_KERNEL); 
+	temp = drop_pack->next;
 	while(temp != NULL)
 	{
 		if (temp->marked == true)
@@ -66,32 +74,34 @@ void drop_packets(){
 	
 }
 
-struct node* red(struct sk_buff* packet, int maxth, int minth, float wq, float maxpb){
-	int m, randm;
-	
+struct node* red(struct sk_buff* packet, int maxth, int minth, int wq, int maxpb){
+	int  randm;
+	int m;
 	node* new_node = kmalloc(sizeof(node), GFP_KERNEL);
 	new_node->packet = packet;
 	new_node->marked = 0;				//default marking is false
 	new_node->next = NULL;
-
+	
                 if (head == NULL && tail == NULL)
-						return new_node;
-				else if (head != NULL && tail != NULL)
-                        avg_queue_size = ((1.0-wq)*avg_queue_size) + (wq * queue_size);
+			return new_node;
+		else if (head != NULL && tail != NULL){
+                        avg_queue_size = ((100-wq)*avg_queue_size) + (wq * queue_size);
+			avg_queue_size /= 100;
+		}
                 else
                 {
-                        long m = constant * get_idle_time_interval();
-                        avg_queue_size = ((1.0 - wq) ^ m) * avg_queue_size;
+                        m = constant * get_idle_time_interval();
+                        avg_queue_size = (((100- wq)) * avg_queue_size)/100;
 					
-				}
+		}
                 
                 if (minth <= avg_queue_size && avg_queue_size < maxth)
                 {
                       		packet_count++;
-                     		pb = maxpb * ((avg_queue_size - minth)/(maxth - minth));
-                       		pa = pb / (1.0 - (packet_count * pb));
+                     		pb = 100*maxpb * ((avg_queue_size - minth)/(maxth - minth));
+                       		pa = 100*pb / (100 - (packet_count * pb));
 
-                      		randm = rand() % 100;
+                      		randm = get_random_number();
 
                       		if (randm <= (pa * 100))
                        		{
@@ -110,7 +120,6 @@ struct node* red(struct sk_buff* packet, int maxth, int minth, float wq, float m
                       		packet_count = -1;
                 }
 				
-	
 	return new_node;
 }
 

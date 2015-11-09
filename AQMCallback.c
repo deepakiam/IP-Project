@@ -6,10 +6,10 @@
 
 int minths[6];					//array to hold min threshold values for each class
 int maxths[6];					//array to hold max threshold values for each class
-float wqs[6];					//array to hold  weight for the moving ave for each class
-float maxpbs[6];				//array to hold maxpb values for each class
+int wqs[6];					//array to hold  weight for the moving ave for each class
+int maxpbs[6];				//array to hold maxpb values for each class
 int minthred, maxthred;				// min and max threshold for queue sizes for base RED implementation
-float wqred, maxpbred;				//weight and maxpb for base RED implementation
+int wqred, maxpbred;				//weight and maxpb for base RED implementation
 
 /* Create the AQM hook function */
 static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff **skb, const struct net_device *in,
@@ -60,7 +60,9 @@ static struct nf_hook_ops nfhops;
 //static int __init myinit(void);
 int init_module(void){
         struct file  *conf_file;
-        
+	head = kmalloc(sizeof(node), GFP_KERNEL);
+	tail = kmalloc(sizeof(node), GFP_KERNEL);
+	drop_pack = kmalloc(sizeof(node), GFP_KERNEL);        
         conf_file = filp_open("conf.txt", O_RDONLY, 0);
         //fscanf(conf_file, "%d", &is_wred);
 	//fscanf(conf_file, "%d %d %f %f ", &minthred, &maxthred, &wqred, &maxpbred);
