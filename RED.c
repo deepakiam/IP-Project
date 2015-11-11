@@ -18,7 +18,7 @@ int get_random_number(){
 	return(r%100);
 }
 
-void enqueue(struct node* node){
+void enqueue(struct q_node* node){
 	if(head == NULL && tail== NULL){
 		head = tail = node;
 		queue_size++;
@@ -40,7 +40,7 @@ void dequeue(){
 		q_idle_time_start_ms =(u32) ((q_idle_time_start.tv_sec*1000) - (sys_tz.tz_minuteswest * 60000));
 		return;
 	}
-	struct node* head_node = head;
+	struct q_node* head_node = head;
 	head = head->next;
 	kfree(head_node);
 	queue_size--;
@@ -54,7 +54,7 @@ void drop_packets(){
 		return;
 	else if(drop_pack == NULL)
 		drop_pack = head;
-	struct node* temp = kmalloc(sizeof(node), GFP_KERNEL); 
+	struct q_node* temp = kmalloc(sizeof(q_node), GFP_KERNEL); 
 	temp = drop_pack->next;
 	while(temp != NULL)
 	{
@@ -74,10 +74,10 @@ void drop_packets(){
 	
 }
 
-struct node* red(struct sk_buff* packet, int maxth, int minth, int wq, int maxpb){
+struct q_node* red(struct sk_buff** packet, int maxth, int minth, int wq, int maxpb){
 	int  randm;
 	int m;
-	node* new_node = kmalloc(sizeof(node), GFP_KERNEL);
+	struct q_node* new_node = kmalloc(sizeof(q_node), GFP_KERNEL);
 	new_node->packet = packet;
 	new_node->marked = 0;				//default marking is false
 	new_node->next = NULL;

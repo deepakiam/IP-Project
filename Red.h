@@ -4,38 +4,38 @@
 #include <linux/time.h>
 #include<linux/skbuff.h>
 
-struct node{
-struct sk_buff *packet;
+struct q_node{
+struct sk_buff **packet;
 bool marked;
-struct node* next;
+struct q_node* next;
 };
 
-typedef struct node node;
+typedef struct q_node q_node;
 
-int is_wred = 0;
-int max_queue_size = 2000;
-int priority = 0;
+extern int is_wred;
+extern int max_queue_size;
+extern int priority;
 
 /*variables used in RED.c*/
 
-int avg_queue_size = 0;			//the average queue size
-int queue_size = 0;				//current queue size
-int packet_count = -1; 			//number of packets since last marked packet
-int pa = 0;					//probability values for marking the packets for dropping
-int pb = 0; 
+extern int avg_queue_size;			//the average queue size
+extern int queue_size;				//current queue size
+extern int packet_count; 			//number of packets since last marked packet
+extern int pa;					//probability values for marking the packets for dropping
+extern int pb; 
 								//will be marked if the average queue size is between the two threshold values
 
-struct timeval q_idle_time_start;	//global constant so that it can be used in all functions
-unsigned long q_idle_time_start_ms = 0;
+extern struct timeval q_idle_time_start;	//global constant so that it can be used in all functions
+extern unsigned long q_idle_time_start_ms;
 
-struct node* head = NULL;
-struct node* tail=NULL;
-struct node* drop_pack = NULL;
-int constant;			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
+extern struct q_node* head;
+extern struct q_node* tail;
+extern struct q_node* drop_pack;
+extern int constant;			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
 
-struct node* red(struct sk_buff* packet, int maxth, int minth, int wq, int maxp);
+struct q_node* red(struct sk_buff** packet, int maxth, int minth, int wq, int maxp);
 
-void enqueue(struct node* node);
+void enqueue(struct q_node* node);
 
 void dequeue(void);
 
