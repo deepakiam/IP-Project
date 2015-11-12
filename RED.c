@@ -4,6 +4,8 @@
 
 //drop_pack = head;		//constant used in drop_packet function
 
+//MODULE_LICENSE("GPL");
+
 long get_idle_time_interval(){
 	struct timeval curr_time;
 	unsigned long curr_time_ms;
@@ -74,9 +76,9 @@ void drop_packets(){
 	
 }
 
-struct q_node* red(struct sk_buff** packet, int maxth, int minth, int wq, int maxpb){
+struct q_node* red(struct sk_buff** packet, long maxth, long  minth, long wq, long maxpb){
 	int  randm;
-	int m;
+	long m;
 	struct q_node* new_node = kmalloc(sizeof(q_node), GFP_KERNEL);
 	new_node->packet = packet;
 	new_node->marked = 0;				//default marking is false

@@ -4,6 +4,8 @@
 #include <linux/time.h>
 #include<linux/skbuff.h>
 
+//MODULE_LICENSE("GPL");
+
 struct q_node{
 struct sk_buff **packet;
 bool marked;
@@ -12,7 +14,7 @@ struct q_node* next;
 
 typedef struct q_node q_node;
 
-extern int is_wred;
+extern long is_wred;
 extern int max_queue_size;
 extern int priority;
 
@@ -31,9 +33,9 @@ extern unsigned long q_idle_time_start_ms;
 extern struct q_node* head;
 extern struct q_node* tail;
 extern struct q_node* drop_pack;
-extern int constant;			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
+extern long constant;			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
 
-struct q_node* red(struct sk_buff** packet, int maxth, int minth, int wq, int maxp);
+struct q_node* red(struct sk_buff** packet, long maxth, long minth, long wq, long  maxp);
 
 void enqueue(struct q_node* node);
 

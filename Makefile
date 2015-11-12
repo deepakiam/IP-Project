@@ -7,3 +7,5 @@ default:
 clean:
 	make	-C	$(KDIR)	M=$(pwd)	clean
 
+KBUILD_EXTRA_SYMBOLS	=	/lib/modules/3.13.0-24-generic/build/Module.symvers /root/ip-project/IP-Project/Module.symvers
+
