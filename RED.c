@@ -76,7 +76,7 @@ void drop_packets(){
 	
 }
 
-struct q_node* red(struct sk_buff** packet, long maxth, long  minth, long wq, long maxpb){
+struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, long maxpb){
 	int  randm;
 	long m;
 	struct q_node* new_node = kmalloc(sizeof(q_node), GFP_KERNEL);

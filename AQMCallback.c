@@ -15,7 +15,7 @@ long wqs[6];					//array to hold  weight for the moving ave for each class
 long maxpbs[6];				//array to hold maxpb values for each class
 long minthred, maxthred;				// min and max threshold for queue sizes for base RED implementation
 long wqred, maxpbred;				//weight and maxpb for base RED implementation
-struct iphdr *ip_header;
+struct iphdr* ip_header;
 unsigned int tos;
 unsigned int tos_mask;
 unsigned int pr_class;
@@ -40,12 +40,11 @@ char read_4bytes_data[5];
 
 
 /* Create the AQM hook function */
-static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff **skb, const struct net_device *in,
+static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in,
                        const struct net_device *out, int (*okfn)(struct sk_buff *)){
         if(is_wred == 1){
 		printk(KERN_INFO "WRED implemented\n");
-		struct iphdr* ip_header;
-		ip_header = ip_hdr(*skb);
+		ip_header = ip_hdr(skb);
 		if(ip_header == NULL){
 			printk(KERN_INFO "ip heder is NULL \n");
 			return NF_ACCEPT;

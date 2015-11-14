@@ -7,7 +7,7 @@
 //MODULE_LICENSE("GPL");
 
 struct q_node{
-struct sk_buff **packet;
+struct sk_buff *packet;
 bool marked;
 struct q_node* next;
 };
@@ -35,7 +35,7 @@ extern struct q_node* tail;
 extern struct q_node* drop_pack;
 extern long constant;			//dummy value for the constant for linear function of difference between current time and queue idle time (used in red.c)
 
-struct q_node* red(struct sk_buff** packet, long maxth, long minth, long wq, long  maxp);
+struct q_node* red(struct sk_buff* packet, long maxth, long minth, long wq, long  maxp);
 
 void enqueue(struct q_node* node);
 
