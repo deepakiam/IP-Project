@@ -37,6 +37,7 @@ void enqueue(struct q_node* node){
 
 void dequeue(){
 	if(head == NULL){
+		printk(KERN_INFO "dequeuing but head is null");
 		return;
 	}
 	if(head == tail){
@@ -44,13 +45,14 @@ void dequeue(){
 		queue_size--;
 		do_gettimeofday(&q_idle_time_start);
 		q_idle_time_start_ms =(u32) ((q_idle_time_start.tv_sec*1000) - (sys_tz.tz_minuteswest * 60000));
+		printk(KERN_INFO "head and tail null. queue size : %d\n", queue_size);
 		return;
 	}
 	struct q_node* head_node = head;
 	head = head->next;
 	kfree(head_node);
 	queue_size--;
-	printk(KERN_INFO "dequeued packet. packet count: %d\n", queue_size);
+	printk(KERN_INFO "dequeued packet. queue count: %d\n", queue_size);
 	return;
 }
 
