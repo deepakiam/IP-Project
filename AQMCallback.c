@@ -18,7 +18,7 @@ long wqred, maxpbred;				//weight and maxpb for base RED implementation
 struct iphdr *ip_header;
 unsigned int tos;
 unsigned int tos_mask;
-unsigned int class;
+unsigned int pr_class;
 long n;
 long constant;
 int pa = 0;
@@ -44,34 +44,43 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff **skb, const s
                        const struct net_device *out, int (*okfn)(struct sk_buff *)){
         if(is_wred == 1){
 		printk(KERN_INFO "WRED implemented\n");
-		ip_header = (struct iphdr *)skb_network_header(*skb);
-		tos =((unsigned int)ip_header->tos);		// get TOS field form the header
-		tos_mask = 252;					// mask value set to  11111100 to get the DSCP bits
-		class = tos&tos_mask;				// bitwise and with mask value to get DSCP bits
-		switch(class){
-			case 4 :
-				enqueue(red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]));
-				break;
-			case 12 :
-                                enqueue(red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]));
-                                break;
-			case 28 :
-                                enqueue(red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]));
-                                break; 
-			case 60 :
-                                enqueue(red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]));
-                                break;
-			case 124 :
-                                enqueue(red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]));
-                                break;
-                        case 252 :
-                                enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
-                                break;
-                        default :
-                                enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
-                                break;
+		struct iphdr* ip_header;
+		ip_header = ip_hdr(*skb);
+		if(ip_header == NULL){
+			printk(KERN_INFO "ip heder is NULL \n");
+			return NF_ACCEPT;
+		} else{
+			printk(KERN_INFO "ip header read successful\n");
+			tos =((unsigned int)ip_header->tos);		// get TOS field form the header
+			printk(KERN_INFO "tos : %u \n",tos);
+			tos_mask = 252;					// mask value set to  11111100 to get the DSCP bits
+			pr_class = tos&tos_mask;				// bitwise and with mask value to get DSCP bits
+			switch(pr_class){
+				case 4 :
+					enqueue(red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]));
+					break;
+				case 12 :
+                        	        enqueue(red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]));
+                          	      break;
+				case 28 :
+                                	enqueue(red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]));
+                                	break; 
+				case 60 :
+      	        	                enqueue(red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]));
+       		                        break;
+				case 124 :
+                                	enqueue(red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]));
+                                	break;
+                        	case 252 :
+                                	enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
+                                	printk(KERN_INFO "class 6\n");
+					break;
+                        	default :
+                                	enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
+                                	printk(KERN_INFO "default class packet\n");
+					break;
+			}
 		}
-		
         }else{
 		printk(KERN_INFO "No WRED implemented");
 		enqueue(red(skb, minthred, maxthred, wqred, maxpbred));	//invoke red here for packet processing
