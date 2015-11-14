@@ -27,6 +27,7 @@ long is_wred = 0;
 int queue_size = 0;
 int avg_queue_size = 0;
 int packet_count = 0;
+int total_packet_count = 0;
 unsigned long q_idle_time_start_ms = 0;
 struct timeval q_idle_time_start;
 struct q_node* head;
@@ -62,6 +63,7 @@ void deq_drop_pack(){
 static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in,
                        const struct net_device *out, int (*okfn)(struct sk_buff *)){
 	processed_packet = kmalloc(sizeof(q_node), GFP_KERNEL);
+	total_packet_count++;
         if(is_wred == 1){
 		printk(KERN_INFO "WRED implemented\n");
 		ip_header = ip_hdr(skb);
@@ -175,6 +177,9 @@ int init_module(void){
 	head = kmalloc(sizeof(q_node), GFP_KERNEL);
 	tail = kmalloc(sizeof(q_node), GFP_KERNEL);
 	drop_pack = kmalloc(sizeof(q_node), GFP_KERNEL);
+	head = NULL;
+	tail = NULL;
+	drop_pack = NULL;
 	if(IS_ERR(conf_file)){
 		err = PTR_ERR(conf_file);
 		printk(KERN_INFO "some error opening file!!\n");
@@ -190,16 +195,16 @@ int init_module(void){
 		printk(KERN_INFO "is_wred: %lu\n", is_wred);
 		//sys_read(fd, read, 1);
 		//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
-		breads = conf_file->f_op->read(conf_file, read_3bytes_data, 4, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_3bytes_data[3] = '\0';
+		read_2bytes_data[2] = '\0';
 		kstrtol(read_3bytes_data, 10, &minthred);
 		printk(KERN_INFO "minthred: %lu\n", minthred);
 		//sys_read(fd, read, 1);
 		//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
-		breads = conf_file->f_op->read(conf_file, read_4bytes_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4bytes_data[4] = '\0';
+		read_2bytes_data[2] = '\0';
 		kstrtol(read_4bytes_data, 10, &maxthred);
 		printk(KERN_INFO "maxthred: %lu\n", maxthred);
 		//sys_read(fd, read, 1);
@@ -230,13 +235,13 @@ int init_module(void){
 		for(i = 0; i < n; i++){
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
-			conf_file->f_op->read(conf_file, read_3bytes_data, 4, &conf_file->f_pos);
-			read_3bytes_data[3] = '\0';
+			conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
+			read_2bytes_data[2] = '\0';
 			kstrtol(read_3bytes_data, 10, &minths[i]);
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
-			conf_file->f_op->read(conf_file, read_4bytes_data, 5, &conf_file->f_pos);
-			read_4bytes_data[4] = '\0';
+			conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
+			read_2bytes_data[2] = '\0';
 			kstrtol(read_4bytes_data, 10, &maxths[i]);
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
@@ -285,8 +290,11 @@ int init_module(void){
 void cleanup_module(void){
     nf_unregister_hook(&nfhops);
     nf_unregister_hook(&nfhops2);
-	printk(KERN_INFO "queue size served: %d\n", queue_size);
+	printk(KERN_INFO "total packets served : %d\n", total_packet_count);
+	printk(KERN_INFO "current queue size: %d\n", queue_size);
 	printk(KERN_INFO "number of total packets dropped : %d\n", packets_dropped);
+	printk(KERN_INFO "class 1 packets dropped : %d\n",c1_packets_dropped);
+	//printk(KERN_INFO)
 	printk(KERN_INFO "module unloaded from kernel!");
 	return ;
 }
