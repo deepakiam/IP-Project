@@ -22,10 +22,14 @@ int get_random_number(){
 
 void enqueue(struct q_node* node){
 	if(head == NULL && tail== NULL){
+		printk(KERN_INFO "enqueuing : head and tail NULL \n");
 		head = tail = node;
 		queue_size++;
 		return;
 	}
+	printk(KERN_INFO "enqueuing : queue has something already\n");
+	queue_size++;
+	printk(KERN_INFO "queue-size : %d\n", queue_size);
 	node->next=tail;
 	tail=node;
 	return;

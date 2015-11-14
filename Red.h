@@ -37,6 +37,8 @@ extern long constant;			//dummy value for the constant for linear function of di
 
 struct q_node* red(struct sk_buff* packet, long maxth, long minth, long wq, long  maxp);
 
+void deq_drop_pack(void);
+
 void enqueue(struct q_node* node);
 
 void dequeue(void);
