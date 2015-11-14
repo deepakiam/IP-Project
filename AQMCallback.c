@@ -52,10 +52,10 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			printk(KERN_INFO "ip header read successful\n");
 			tos =(ip_header->tos);		// get TOS field form the header
 			printk(KERN_INFO "tos : %u \n",tos);
-			/**tos_mask = 252;					// mask value set to  11111100 to get the DSCP bits
-			pr_class = tos&tos_mask;				// bitwise and with mask value to get DSCP bits
+			tos_mask = 252;					// mask value set to  11111100 to get the DSCP bits
+			pr_class = tos & tos_mask;				// bitwise and with mask value to get DSCP bits
 			printk(KERN_INFO "priority class : %u \n", pr_class);
-			switch(pr_class){
+			/**switch(pr_class){
 				case 4 :
 					enqueue(red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]));
 					break;
