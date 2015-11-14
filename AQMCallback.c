@@ -37,6 +37,13 @@ char read_1byte_data[2];
 char read_2bytes_data[3];
 char read_3bytes_data[4];
 char read_4bytes_data[5];
+unsigned int c1, c2, c3, c4, c5, c6;
+c1 = 4;
+c2 = 12;
+c3 = 28;
+c4 = 60;
+c5 = 124;
+c6 = 252;
 
 
 /* Create the AQM hook function */
@@ -55,23 +62,23 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			tos_mask = 252;					// mask value set to  11111100 to get the DSCP bits
 			pr_class = tos & tos_mask;				// bitwise and with mask value to get DSCP bits
 			printk(KERN_INFO "priority class : %u \n", pr_class);
-			/**switch(pr_class){
-				case 4 :
+			switch(pr_class){
+				case c1 :
 					enqueue(red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]));
 					break;
-				case 12 :
+				case c2 :
                         	        enqueue(red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]));
                           	      break;
-				case 28 :
+				case c3 :
                                 	enqueue(red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]));
                                 	break; 
-				case 60 :
+				case c4 :
       	        	                enqueue(red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]));
        		                        break;
-				case 124 :
+				case c5 :
                                 	enqueue(red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]));
                                 	break;
-                        	case 252 :
+                        	case c6 :
                                 	enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
                                 	printk(KERN_INFO "class 6\n");
 					break;
@@ -79,7 +86,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
                                 	enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
                                 	printk(KERN_INFO "default class packet\n");
 					break;
-			}**/
+			}
 		}
         }else{
 		printk(KERN_INFO "No WRED implemented");
@@ -210,6 +217,7 @@ int init_module(void){
 //static int __exit void my_exit(void)
 void cleanup_module(void){
     nf_unregister_hook(&nfhops);
+	printk(KERN_INFO "queue size served: %d\n", queue_size);
 	printk(KERN_INFO "module unloaded from kernel!");
 	return ;
 }
