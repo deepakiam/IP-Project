@@ -76,66 +76,74 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			pr_class = tos & tos_mask;				// bitwise and with mask value to get DSCP bits
 			printk(KERN_INFO "priority class : %u \n", pr_class);
 			if(pr_class == c1){
-				processed_packet = enqueue(red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]));
-				if(processed_packet->marked == 1 && avg_queue_size > ((80*maxths[0])/100)){
+				processed_packet = red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]);
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[0])/100)){
 					deq_drop_pack();
 					c1_packets_dropped++;
 					return NF_DROP;
 				}
+				enqueue(processed_packet);
 			} else if(pr_class == c2){
-                        	processed_packet = enqueue(red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]));
-				if(procesed_packet->marked == 1 && avg_queue_size > ((80*maxths[1])/100)){
+                        	processed_packet = red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]);
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[1])/100)){
 					deq_drop_pack();
 					c2_packets_dropped++;
 					return NF_DROP;
 				}
+				enqueue(processed_packet);
                         } else if(pr_class == c3){
-                                processed_packet = enqueue(red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]));
-				if(processed_packet->marked == 1 && avg_queue_size >((80*maxths[2])/100)){
+                                processed_packet = red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]);
+				if(processed_packet->marked == 1 && queue_size >((80*maxths[2])/100)){
 					deq_drop_pack();
 					c3_packets_dropped++;
 					return NF_DROP;
 				}
+				enqueue(processed_packet);
                         } else if(pr_class == c4){
-      	        	        processed_packet = enqueue(red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]));
-				if(processed_packet->marked == 1 && avg_queue_size > ((80*maxths[3])/100)){
+      	        	        processed_packet = red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]);
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[3])/100)){
 					deq_drop_pack();
 					c4_packets_dropped++;
 					return NF_DROP;
 				}
+				enqueue(processed_packet);
        		        } else if(pr_class == c5){
-                                processed_packet = enqueue(red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]));
-				if(processed_packet->marked == 1 && avg_queue_size > ((80*maxths[4])/100)){
+                                processed_packet = red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]);
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[4])/100)){
 					deq_drop_pack();
 					c5_packets_dropped++;
 					return NF_DROP;
 				}
+				enqueue(processed_packet);
                         } else if(pr_class == c6){
-                                processed_packet = enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
+                                processed_packet = red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]);
                                 printk(KERN_INFO "class 6\n");
-				if(processed_packet->marked == 1 && avg_queue_size > ((80*maxths[5])/100)){
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[5])/100)){
 					deq_drop_pack();
 					c6_packets_dropped++;
 					return NF_DROP;
 				}
+				enqueue(processed_packet);
 			} else {
-                                processed_packet = enqueue(red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]));
+                                processed_packet = red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]);
                                	printk(KERN_INFO "default class packet\n");
-				if(processed_packet->marked == 1 && avg_queue_size > ((80*maxths[5])/100)){
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[5])/100)){
 					deq_drop_pack();
 					printk(KERN_INFO "Dropping default class packet\n");
 					return NF_DROP;
 				}
+				enqueue(processed_packet);
 			}
 		}
         }else{
 		printk(KERN_INFO "No WRED implemented");
-		processed_packet = enqueue(red(skb, minthred, maxthred, wqred, maxpbred));	//invoke red here for packet processing
-		if(processed_packet->marked == 1 && avg_queue_size > ((80*maxthred)/100)){
+		processed_packet = red(skb, minthred, maxthred, wqred, maxpbred);	//invoke red here for packet processing
+		if(processed_packet->marked == 1 && queue_size > ((80*maxthred)/100)){
 			deq_drop_pack();
 			printk(KERN_INFO "dropping packets normal RED\n");
 			return NF_DROP;
 		}
+		enqueue(processed_packet);
 	}
 	
 	printk(KERN_INFO "executing the AQM hook function");

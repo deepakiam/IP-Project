@@ -50,6 +50,7 @@ void dequeue(){
 	head = head->next;
 	kfree(head_node);
 	queue_size--;
+	printk(KERN_INFO "dequeued packet. packet count: %d\n", queue_size);
 	return;
 }
 
@@ -93,6 +94,7 @@ struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, lon
 		else if (head != NULL && tail != NULL){
                         avg_queue_size = ((100-wq)*avg_queue_size) + (wq * queue_size);
 			avg_queue_size /= 100;
+			printk(KERN_INFO "average queue size : %d\n", avg_queue_size);
 		}
                 else
                 {
@@ -103,12 +105,13 @@ struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, lon
                 
                 if (minth <= avg_queue_size && avg_queue_size < maxth)
                 {
-                      		packet_count++;
+                      		printk(KERN_INFO "packet average queue size in range\n");
+				packet_count++;
                      		pb = 100*maxpb * ((avg_queue_size - minth)/(maxth - minth));
                        		pa = 100*pb / (100 - (packet_count * pb));
 
                       		randm = get_random_number();
-
+				
                       		if (randm <= (pa * 100))
                        		{
                               		new_node->marked = 1;	//marked the packet for deletion
