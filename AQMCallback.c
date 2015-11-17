@@ -24,8 +24,8 @@ long constant;
 int pa = 0;
 int pb = 0;
 long is_wred = 0;
-int queue_size = 0;
-int avg_queue_size = 0;
+long queue_size = 0;
+long avg_queue_size = 0;
 int packet_count = 0;
 int total_packet_count = 0;
 unsigned long q_idle_time_start_ms = 0;
@@ -46,6 +46,13 @@ static const unsigned int c4 = 60;
 static const unsigned int c5 = 124;
 static const unsigned int c6 = 252;
 int counter = 0;
+int packets_marked = 0;
+int c1_packets_marked = 0;
+int c2_packets_marked = 0;
+int c3_packets_marked = 0;
+int c4_packets_marked = 0;
+int c5_packets_marked = 0;
+int c6_packets_marked = 0;
 int packets_dropped = 0;
 int c1_packets_dropped = 0;
 int c2_packets_dropped = 0;
@@ -53,9 +60,16 @@ int c3_packets_dropped = 0;
 int c4_packets_dropped = 0;
 int c5_packets_dropped = 0;
 int c6_packets_dropped = 0;
+int stop_c1 = 0;
+int stop_c2 = 0;
+int stop_c3 = 0;
+int stop_c4 = 0;
+int stop_c5 = 0;
+int stop_c6 = 0;
+int stop = 0;
 
 void deq_drop_pack(){
-	dequeue();
+	//dequeue();
 	packets_dropped++;
 	return;
 }
@@ -80,9 +94,14 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			printk(KERN_INFO "priority class : %u \n", pr_class);
 			if(pr_class == c1){
 				processed_packet = red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]);
-				if(processed_packet->marked == 1 && queue_size > ((80*maxths[0])/100)){
+				if(processed_packet->marked == 1) {
+					c1_packets_marked++;
+					stop_c1++;
+				}	
+				if( queue_size > ((80*maxths[0])/100) && stop_c1>0){
 					deq_drop_pack();
 					c1_packets_dropped++;
+					stop_c1--;
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -141,8 +160,14 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
         }else{
 		printk(KERN_INFO "No WRED implemented");
 		processed_packet = red(skb, minthred, maxthred, wqred, maxpbred);	//invoke red here for packet processing
-		if(processed_packet->marked == 1 && queue_size > ((80*maxthred)/100)){
+		if(processed_packet->marked == 1){
+			packets_marked++;
+			stop++;
+		}
+		if(queue_size > ((80*maxthred)/100) && stop > 0){
 			deq_drop_pack();
+			stop--;
+			queue_size--;
 			printk(KERN_INFO "dropping packets normal RED\n");
 			return NF_DROP;
 		}

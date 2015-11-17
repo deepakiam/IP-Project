@@ -21,8 +21,8 @@ extern int counter;
 
 /*variables used in RED.c*/
 
-extern int avg_queue_size;			//the average queue size
-extern int queue_size;				//current queue size
+extern long avg_queue_size;			//the average queue size
+extern long queue_size;				//current queue size
 extern int packet_count; 			//number of packets since last marked packet
 extern int pa;					//probability values for marking the packets for dropping
 extern int pb; 

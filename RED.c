@@ -28,21 +28,21 @@ void enqueue(struct q_node* node){
 		if(q_size_dec_count%3 == 1){
 			queue_size -=20;
 		} else if(q_size_dec_count%3 == 2) {
-			queue_size-=10;
+			queue_size-=40;
 		}
 	}
 	if(counter%75 == 74){
 		queue_size -= 30;
 	}
 	if(head == NULL && tail== NULL){
-		printk(KERN_INFO "enqueuing : head and tail NULL \n");
+		printk(KERN_INFO "Enqueuing : head and tail NULL \n");
 		head = tail = node;
 		queue_size++;
 		return;
 	}
 	printk(KERN_INFO "enqueuing : queue has something already\n");
 	queue_size++;
-	printk(KERN_INFO "queue-size : %d\n", queue_size);
+	printk(KERN_INFO "queue-size : %lu\n", queue_size);
 	node->next=tail;
 	tail=node;
 	return;
@@ -58,14 +58,14 @@ void dequeue(){
 		queue_size--;
 		do_gettimeofday(&q_idle_time_start);
 		q_idle_time_start_ms =(u32) ((q_idle_time_start.tv_sec*1000) - (sys_tz.tz_minuteswest * 60000));
-		printk(KERN_INFO "head and tail null. queue size : %d\n", queue_size);
+		printk(KERN_INFO "head and tail null. queue size : %lu\n", queue_size);
 		return;
 	}
 	struct q_node* head_node = head;
 	head = head->next;
 	kfree(head_node);
 	queue_size--;
-	printk(KERN_INFO "dequeued packet. queue count: %d\n", queue_size);
+	printk(KERN_INFO "dequeued packet. queue count: %lu\n", queue_size);
 	return;
 }
 
@@ -104,29 +104,29 @@ struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, lon
 	new_node->marked = 0;				//default marking is false
 	new_node->next = NULL;
 	
-                if (head == NULL && tail == NULL){
+                if (queue_size == 0){
 			return new_node;
-		else if (head != NULL && tail != NULL){
+		}else {
                         avg_queue_size = ((100-wq)*avg_queue_size) + (wq * queue_size);
 			avg_queue_size /= 100;
-			printk(KERN_INFO "average queue size : %d\n", avg_queue_size);
+			printk(KERN_INFO "average queue size : %lu\n", avg_queue_size);
 		}
-                else
-                {
-                        m = constant * get_idle_time_interval();
-                        avg_queue_size = (((100- wq)) * avg_queue_size)/100;
+                //else
+                //{
+                    //    m = constant * get_idle_time_interval();
+                  //      avg_queue_size = (((100- wq)) * avg_queue_size)/100;
 					
-		}
-                
-                if (minth <= avg_queue_size && avg_queue_size < maxth)
+		//}
+                printk(KERN_INFO "ave size : %lu   minth : %lu    maxth : %lu\n", avg_queue_size, minth , maxth);
+                if (minth < avg_queue_size && avg_queue_size < maxth)
                 {
                       		printk(KERN_INFO "packet average queue size in range\n");
 				packet_count++;
                      		pb = 100*maxpb * ((avg_queue_size - minth)/(maxth - minth));
                        		pa = 100*pb / (100 - (packet_count * pb));
-
+				printk(KERN_INFO "pa :%d \n", pa);
                       		randm = get_random_number();
-				
+				printk(KERN_INFO "random number : %d\n", randm);
                       		if (randm <= (pa * 100))
                        		{
                               		new_node->marked = 1;	//marked the packet for deletion
@@ -135,13 +135,14 @@ struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, lon
                 }
                 else if (maxth <= avg_queue_size)
                 {
-                        
+                        				printk(KERN_INFO "max threshhold exceeded\n");
 							new_node->marked = 1;				//marked the packet for deletion
 							packet_count = 0;
                 }
                 else
                 {
-                      		packet_count = -1;
+                      	printk(KERN_INFO "packet count reset\n");	
+			packet_count = -1;
                 }
 				
 	return new_node;
