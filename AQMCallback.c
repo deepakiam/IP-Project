@@ -45,6 +45,7 @@ static const unsigned int c3 = 28;
 static const unsigned int c4 = 60;
 static const unsigned int c5 = 124;
 static const unsigned int c6 = 252;
+int counter = 0;
 int packets_dropped = 0;
 int c1_packets_dropped = 0;
 int c2_packets_dropped = 0;
@@ -154,8 +155,12 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 
 static unsigned int aqm_hook2(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in,
                        const struct net_device *out, int (*okfn)(struct sk_buff *)){
-	printk(KERN_INFO "post routing hook\n");
-	dequeue();
+	//printk(KERN_INFO "post routing hook\n");
+	//counter++;
+	//if (counter%50 == 0){
+	//	queue_size -=20;
+	//}
+	//dequeue();
 	return NF_ACCEPT;			   //after processing the packet, return NF_ACCEPT to let the packet pass
 }
 
@@ -278,8 +283,8 @@ int init_module(void){
 	nfhops.pf = NFPROTO_IPV4; 			//protocol is IPv4
 	nf_register_hook(&nfhops);
 	nfhops2.hook = aqm_hook2;				//hook function
-	nfhops2.priority = NF_IP_PRI_FIRST;		//function registered for hughest priority
-	nfhops2.hooknum = 3;			//callback for this hook
+	nfhops2.priority = NF_IP_PRI_LAST;		//function registered for hughest priority
+	nfhops2.hooknum = 4;			//callback for this hook
 	nfhops2.pf = NFPROTO_IPV4; 			//protocol is IPv4
 	nf_register_hook(&nfhops2);
 	return 0;

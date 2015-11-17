@@ -6,6 +6,7 @@
 
 //MODULE_LICENSE("GPL");
 
+int q_size_dec_count = 0;
 long get_idle_time_interval(){
 	struct timeval curr_time;
 	unsigned long curr_time_ms;
@@ -21,6 +22,18 @@ int get_random_number(){
 }
 
 void enqueue(struct q_node* node){
+	counter++;
+	if(counter%50 == 49){
+		q_size_dec_count++;
+		if(q_size_dec_count%3 == 1){
+			queue_size -=20;
+		} else if(q_size_dec_count%3 == 2) {
+			queue_size-=10;
+		}
+	}
+	if(counter%75 == 74){
+		queue_size -= 30;
+	}
 	if(head == NULL && tail== NULL){
 		printk(KERN_INFO "enqueuing : head and tail NULL \n");
 		head = tail = node;
@@ -91,7 +104,7 @@ struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, lon
 	new_node->marked = 0;				//default marking is false
 	new_node->next = NULL;
 	
-                if (head == NULL && tail == NULL)
+                if (head == NULL && tail == NULL){
 			return new_node;
 		else if (head != NULL && tail != NULL){
                         avg_queue_size = ((100-wq)*avg_queue_size) + (wq * queue_size);
