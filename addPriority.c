@@ -1,19 +1,25 @@
 #include <linux/kernel.h>
+#include <linux/in.h>
+#include <linux/limits.h>
 #include <linux/module.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 #include <linux/init.h>
-#include <inttypes.h>
-#include <ams-generic/types.h>
+#include <asm/types.h>
+#include <linux/ip.h>
 #include <net/checksum.h>
 
-
-static struct nf_hook_ops nfho;         
+         
 struct sk_buff *sock_buff;	//current buffer
 struct iphdr *ip_header;	//ip header pointer
-
+char addr1[21];			//range start address 
+char addr2[21];			//range end address
+char priority[3];		//range priority
+int priority_flag = 0;		//set-priority
 unsigned short checksum(int iphl, unsigned short ipheader[]);
-char * parseIPV4(char* ipAddress, int arr[4]);
+int * parseIPV4(char* ipAddress, int arr[4]);
+int isInRange(char *start, char *end, char *check);
+char* convert_IP(int IP);
 
 
 unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
@@ -34,7 +40,7 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	ip_len = ip_header->ihl * 4;				//no. of words of IP header
 
 	memset(&src_addr, 0, sizeof(src_addr));
-	src_addr.sin_addr.s_addr = iph_header->saddr;			        //source ip address
+	src_addr.sin_addr.s_addr = ip_header->saddr;			        //source ip address
 	
 	tot_len = ntohs(ip_header->tot_len);			//total packet length
 	tos_bits = ip_header->tos;				//tos bits
@@ -43,7 +49,7 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	
 	//determine the class of packet from source
 	char incoming_addr[20] ;
-	sprintf(incoming_addr,"%s",inet_ntoa(src_addr.sin_addr));
+	sprintf(incoming_addr,"%s",convert_IP(src_addr.sin_addr.s_addr));
 
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
@@ -60,7 +66,27 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	Class C :	Lowest Priority :	100.0.0.128 - 100.0.0.255
 	*/
 	
-	__u8 priority;
+
+/*	reading from /etc/wred.conf	*/
+
+	char *conf_fpath = "/etc/wred.conf";
+	struct file* conf_file;
+	int b_read;
+	mm_segment_t old_fs = get_fs();
+	set_fs(get_ds());
+	conf_file = filp_open(conf_fpath,O_RDONLY,0);
+	int a=0;
+	for (;a<21;a++)	
+	{buffer1[a]='\0';	buffer2[a]='\0';	}
+	a=0;
+	for(;a<3;a++)	priority[a]='\0';
+	
+	b_read = conf_file->f_op->read(conf_file,buffer1,20, &conf_file->f_pos);
+	printk(KERN_INFO "read from file : %s\n", buffer1);
+
+
+/*	*/
+	__u8 priority = 0;
 
 	if(isInRange("100.0.0.0","100.0.0.63",incoming_addr) == 1)			//Class A  Bit format : 000 001 XX
 	{
@@ -97,7 +123,6 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 int isInRange(char *start, char *end, char *check)	
 {
 	int address_array[3][4];
-	int a=0;
 	int b=0;
 	
 	parseIPV4(start,address_array[0]);	
@@ -113,7 +138,7 @@ int isInRange(char *start, char *end, char *check)
 
 /*Function to separate octets of IPv4 address*/
 
-char * parseIPV4(char* ipAddress, int arr[4]) {
+int * parseIPV4(char* ipAddress, int arr[4]) {
  	
 	sscanf(ipAddress, "%d.%d.%d.%d", &arr[3], &arr[2], &arr[1], &arr[0]);
 	return arr;	
@@ -125,7 +150,7 @@ char * parseIPV4(char* ipAddress, int arr[4]) {
 unsigned short checksum(int iphl, unsigned short ipheader[])
 {
 	unsigned long sum = 0;
-	unsigned short temp_tos_word =0;
+	//unsigned short temp_tos_word =0;
 	int i=0;
 	for(;i<(iphl*2);i++)
 	{	
@@ -144,11 +169,25 @@ unsigned short checksum(int iphl, unsigned short ipheader[])
 
 }
 
+/* Convert IP address from integer to dotted decimal*/
+char* convert_IP(int IP)
+{
+    unsigned char dot_dec[4];
+    dot_dec[0] = IP & 0xFF;   dot_dec[1] = (IP >> 8) & 0xFF;    dot_dec[2] = (IP >> 16) & 0xFF;    dot_dec[3] = (IP >> 24) & 0xFF;	
+    sprintf(dot_dec,"%d.%d.%d.%d\n", dot_dec[0], dot_dec[1], dot_dec[2], dot_dec[3]);        
+    return dot_dec;
+
+
+}
+
+static struct nf_hook_ops nfho;
+
 int init_module()
 {
+  //&nfho = (struct nf_hook_ops *) malloc(sizeof(&nfho));
   nfho.hook = hook_setpriority;          	//hook function call
-  nfho.hooknum = NF_IP_FORWARD;		//call when decsion is made for forwarding
-  nfho.pf = PF_INET;                           		//IPV4 pkts
+  nfho.hooknum = 2;		//call when decsion is made for forwarding
+  nfho.pf = NFPROTO_IPV4;                           		//IPV4 pkts
   nfho.priority = NF_IP_PRI_FIRST;             	//set to highest priority
   nf_register_hook(&nfho);                     	//register hook
 
