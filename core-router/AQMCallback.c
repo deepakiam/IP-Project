@@ -24,7 +24,6 @@ long constant;
 long is_wred = 0;
 long queue_size = 0;
 long avg_queue_size = 0;
-long packet_count = 0;
 int total_packet_count = 0;
 unsigned long q_idle_time_start_ms = 0;
 struct timeval q_idle_time_start;
