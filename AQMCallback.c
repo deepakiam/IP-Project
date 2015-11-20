@@ -98,64 +98,102 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					c1_packets_marked++;
 					stop_c1++;
 				}	
-				if( queue_size > ((80*maxths[0])/100) && stop_c1>0){
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[0])/100) && stop_c1>0){
 					deq_drop_pack();
 					c1_packets_dropped++;
 					stop_c1--;
+					queue_size--;
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
 			} else if(pr_class == c2){
                         	processed_packet = red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]);
-				if(processed_packet->marked == 1 && queue_size > ((80*maxths[1])/100)){
+				if(processed_packet->marked == 1) {
+					c2_packets_marked++;
+					stop_c2++;
+				}	
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[1])/100) && stop_c2>0){
 					deq_drop_pack();
 					c2_packets_dropped++;
+					stop_c2--;
+					queue_size--;
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
                         } else if(pr_class == c3){
                                 processed_packet = red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]);
-				if(processed_packet->marked == 1 && queue_size >((80*maxths[2])/100)){
+				if(processed_packet->marked == 1) {
+					c3_packets_marked++;
+					stop_c3++;
+				}	
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[2])/100) && stop_c3>0){
 					deq_drop_pack();
 					c3_packets_dropped++;
+					stop_c3--;
+					queue_size--;
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
                         } else if(pr_class == c4){
       	        	        processed_packet = red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]);
-				if(processed_packet->marked == 1 && queue_size > ((80*maxths[3])/100)){
+				if(processed_packet->marked == 1) {
+					c4_packets_marked++;
+					stop_c4++;
+				}	
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[3])/100) && stop_c4>0){
 					deq_drop_pack();
 					c4_packets_dropped++;
+					stop_c4--;
+					queue_size--;
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
        		        } else if(pr_class == c5){
                                 processed_packet = red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]);
-				if(processed_packet->marked == 1 && queue_size > ((80*maxths[4])/100)){
+				if(processed_packet->marked == 1) {
+					c5_packets_marked++;
+					stop_c5++;
+				}	
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[4])/100) && stop_c5>0){
 					deq_drop_pack();
 					c5_packets_dropped++;
+					stop_c5--;
+					queue_size--;
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
-                        } else if(pr_class == c6){
+                        } else {
                                 processed_packet = red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]);
                                 printk(KERN_INFO "class 6\n");
-				if(processed_packet->marked == 1 && queue_size > ((80*maxths[5])/100)){
+				if(processed_packet->marked == 1) {
+					c6_packets_marked++;
+					stop_c6++;
+				}	
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[5])/100) && stop_c6>0){
 					deq_drop_pack();
 					c6_packets_dropped++;
+					stop_c6--;
+					queue_size--;
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
-			} else {
+			} /**else {
                                 processed_packet = red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]);
                                	printk(KERN_INFO "default class packet\n");
-				if(processed_packet->marked == 1 && queue_size > ((80*maxths[5])/100)){
+				if(processed_packet->marked == 1){
+					packets_marked++;
+					stop++;
+				}
+				if(processed_packet->marked == 1 && queue_size > ((80*maxths[5])/100) && stop_c6 > 0){
 					deq_drop_pack();
-					printk(KERN_INFO "Dropping default class packet\n");
+					c6_packets_dropped++;
+					stop_c6--;
+					queue_size--;
+					printk(KERN_INFO "dropping c6 packets\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
-			}
+			}**/
 		}
         }else{
 		printk(KERN_INFO "No WRED implemented");
@@ -164,7 +202,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			packets_marked++;
 			stop++;
 		}
-		if(queue_size > ((80*maxthred)/100) && stop > 0){
+		if(processed_packet->marked == 1 && queue_size > ((80*maxthred)/100) && stop > 0){
 			deq_drop_pack();
 			stop--;
 			queue_size--;
