@@ -35,17 +35,18 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 
 	//extract header info on incoming pkt
 	
-	ip_header = (struct iphdr *)skb_network_header(sock_buff);	//extract ip_header
+	ip_header = ip_hdr(sock_buff);	//extract ip_header
 	
 	ip_len = ip_header->ihl * 4;				//no. of words of IP header
 
-	memset(&src_addr, 0, sizeof(src_addr));
-	src_addr.sin_addr.s_addr = ip_header->saddr;			        //source ip address
+	//memset(&src_addr, 0, sizeof(src_addr));
+	//src_addr.sin_addr.s_addr = ip_header->saddr;			        //source ip address
+	unsigned long s_addr = ip_header->saddr;			        //source ip address
 	
 	tot_len = ntohs(ip_header->tot_len);			//total packet length
 	tos_bits = ip_header->tos;				//tos bits
 	
-	
+	printk(KERN_INFO "got these details len = %d, addr = %d, tot_len = %d, tos_bits = %d\n", ip_len, s_addr, tot_len, tos_bits);
 	
 	//determine the class of packet from source
 	char incoming_addr[20] ;
@@ -184,6 +185,7 @@ static struct nf_hook_ops nfho;
 
 int init_module()
 {
+  printk(KERN_INFO "entered the module\n");
   //&nfho = (struct nf_hook_ops *) malloc(sizeof(&nfho));
   nfho.hook = hook_setpriority;          	//hook function call
   nfho.hooknum = 2;		//call when decsion is made for forwarding
