@@ -8,7 +8,7 @@
 
 long pa = 0;
 long pb = 0;
-
+long packet_count = 0;
 int q_size_dec_count = 0;
 long get_idle_time_interval(){
 	struct timeval curr_time;
@@ -34,14 +34,16 @@ void enqueue(struct q_node* node){
 	if(counter%50 == 49){
 		q_size_dec_count++;
 		if(q_size_dec_count%3 == 1){
-			queue_size -=20;
+			queue_size -=30;
 		} else if(q_size_dec_count%3 == 2) {
-			queue_size-=40;
+			queue_size-=35;
+		}else {
+			queue_size-=30;
 		}
 	}
-	if(counter%75 == 74){
-		queue_size -= 30;
-	}
+//	if(counter%75 == 74){
+//		queue_size -= 30;
+//	}
 	if(head == NULL && tail== NULL){
 		printk(KERN_INFO "Enqueuing : head and tail NULL \n");
 		head = tail = node;
@@ -130,9 +132,9 @@ struct q_node* red(struct sk_buff* packet, long minth, long  maxth, long wq, lon
                 {
 				packet_count++;
                       		printk(KERN_INFO "packet average queue size in range. packet count : %lu\n", packet_count);
-                     		pb = (maxpb * (avg_queue_size - minth))/(maxth - minth);
-                       		pa = (100*pb)/(100 - (packet_count * pb));
-				printk(KERN_INFO "pa :%d \n", pa);
+                     		pa = (maxpb * (avg_queue_size - minth))/(maxth - minth);
+                       		//pa = (100*pb)/(100 - (packet_count * pb));
+				printk(KERN_INFO "pa :%lu \n", pa);
                       		randm = get_random_number();
 				printk(KERN_INFO "random number : %lu  pb : %lu  pa : %lu \n", randm, pb, pa);
                       		if (randm < pa)
