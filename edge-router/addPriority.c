@@ -37,20 +37,23 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	
 	ip_header = ip_hdr(sock_buff);	//extract ip_header
 	
-	ip_len = ip_header->ihl * 4;				//no. of words of IP header
+	ip_len = ip_header->ihl;				//no. of words of IP header
+	printk(KERN_INFO "got these details len = %d\n", ip_len);
+	return NF_ACCEPT;
 
 	//memset(&src_addr, 0, sizeof(src_addr));
 	//src_addr.sin_addr.s_addr = ip_header->saddr;			        //source ip address
 	unsigned long s_addr = ip_header->saddr;			        //source ip address
 	
-	tot_len = ntohs(ip_header->tot_len);			//total packet length
+	tot_len = ip_header->tot_len;			//total packet length
 	tos_bits = ip_header->tos;				//tos bits
 	
 	printk(KERN_INFO "got these details len = %d, addr = %d, tot_len = %d, tos_bits = %d\n", ip_len, s_addr, tot_len, tos_bits);
+	return NF_ACCEPT;
 	
 	//determine the class of packet from source
 	char incoming_addr[20] ;
-	sprintf(incoming_addr,"%s",convert_IP(src_addr.sin_addr.s_addr));
+	//sprintf(incoming_addr,"%s",convert_IP(src_addr.sin_addr.s_addr));
 
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
