@@ -78,12 +78,12 @@ unsigned int hook_setpriority(unsigned int hooknum, struct sk_buff **skb, const 
 	conf_file = filp_open(conf_fpath,O_RDONLY,0);
 	int a=0;
 	for (;a<21;a++)	
-	{buffer1[a]='\0';	buffer2[a]='\0';	}
+	{addr1[a]='\0';	addr2[a]='\0';	}
 	a=0;
 	for(;a<3;a++)	priority[a]='\0';
 	
-	b_read = conf_file->f_op->read(conf_file,buffer1,20, &conf_file->f_pos);
-	printk(KERN_INFO "read from file : %s\n", buffer1);
+	b_read = conf_file->f_op->read(conf_file,addr1,20, &conf_file->f_pos);
+	printk(KERN_INFO "read from file : %s\n", addr1);
 
 
 /*	*/
