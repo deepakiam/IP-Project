@@ -23,9 +23,9 @@ extern int counter;
 
 extern long avg_queue_size;			//the average queue size
 extern long queue_size;				//current queue size
-extern int packet_count; 			//number of packets since last marked packet
-extern int pa;					//probability values for marking the packets for dropping
-extern int pb; 
+extern long packet_count; 			//number of packets since last marked packet
+extern long pa;					//probability values for marking the packets for dropping
+extern long pb; 
 								//will be marked if the average queue size is between the two threshold values
 
 extern struct timeval q_idle_time_start;	//global constant so that it can be used in all functions
@@ -50,7 +50,7 @@ int getTimeInterval(void);
 
 long get_idle_time_interval(void);
 
-int get_random_number(void);
+long get_random_number(void);
 
 
 

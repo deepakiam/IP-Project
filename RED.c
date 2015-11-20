@@ -6,6 +6,9 @@
 
 //MODULE_LICENSE("GPL");
 
+long pa = 0;
+long pb = 0;
+
 int q_size_dec_count = 0;
 long get_idle_time_interval(){
 	struct timeval curr_time;
@@ -15,10 +18,15 @@ long get_idle_time_interval(){
 	return (curr_time_ms - q_idle_time_start_ms); 
 }
 
-int get_random_number(){
-	int r;
+long get_random_number(){
+	long r;
+	long rtemp;
 	get_random_bytes(&r, sizeof(r));
-	return(r%100);
+	rtemp = r%100;
+	if(rtemp < 0){
+		rtemp = 0 - rtemp;
+	}
+	return rtemp;
 }
 
 void enqueue(struct q_node* node){
@@ -97,7 +105,7 @@ void drop_packets(){
 }
 
 struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, long maxpb){
-	int  randm;
+	long  randm;
 	long m;
 	struct q_node* new_node = kmalloc(sizeof(q_node), GFP_KERNEL);
 	new_node->packet = packet;
@@ -120,17 +128,18 @@ struct q_node* red(struct sk_buff* packet, long maxth, long  minth, long wq, lon
                 printk(KERN_INFO "ave size : %lu   minth : %lu    maxth : %lu\n", avg_queue_size, minth , maxth);
                 if (minth < avg_queue_size && avg_queue_size < maxth)
                 {
-                      		printk(KERN_INFO "packet average queue size in range\n");
 				packet_count++;
-                     		pb = 100*maxpb * ((avg_queue_size - minth)/(maxth - minth));
-                       		pa = 100*pb / (100 - (packet_count * pb));
+                      		printk(KERN_INFO "packet average queue size in range. packet count : %lu\n", packet_count);
+                     		pb = (maxpb * (avg_queue_size - minth))/(maxth - minth);
+                       		pa = (100*pb)/(100 - (packet_count * pb));
 				printk(KERN_INFO "pa :%d \n", pa);
                       		randm = get_random_number();
-				printk(KERN_INFO "random number : %d\n", randm);
-                      		if (randm <= (pa * 100))
+				printk(KERN_INFO "random number : %lu  pb : %lu  pa : %lu \n", randm, pb, pa);
+                      		if (randm < pa)
                        		{
                               		new_node->marked = 1;	//marked the packet for deletion
-                               		packet_count = 0;
+                               		printk(KERN_INFO "marking for dropping\n");
+					packet_count = 0;
                        		}
                 }
                 else if (maxth <= avg_queue_size)
