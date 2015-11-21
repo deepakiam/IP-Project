@@ -41,6 +41,8 @@ unsigned int main_hook(unsigned int hooknum,
                   int (*okfn)(struct sk_buff*))
 {
 	ip_header = ip_hdr(skb);
+	tos_bits = ip_header->tos;				//tos bits
+	
 	__u8 priority = 4;
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
@@ -51,12 +53,13 @@ unsigned int main_hook(unsigned int hooknum,
     
 	if ( (ip_header->daddr) == *(unsigned int*)sip_address)
 		__u8 new_tos = priority | ECN;
-	
+	printk(KERN_INFO "old tos %d\n", ip_header->tos);
 	ip_header->tos = new_tos; 
-
+	
+	printk(KERN_INFO "new tos %d\n", new_tos);
 	//recalulate checksum and set
 
-	csum_replace2(&ip_header->check, htons(origin_tos), htons(new_tos));
+	//csum_replace2(&ip_header->check, htons(origin_tos), htons(new_tos));
 
 	return NF_ACCEPT;
 }
