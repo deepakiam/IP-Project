@@ -1,18 +1,16 @@
 #define __KERNEL__
 #define MODULE
-#include <linux/ip.h>             
-#include <linux/netdevice.h>      
-#include <linux/skbuff.h>         
-#include <linux/udp.h>          
-#include <linux/tcp.h>
-#include <linux/icmp.h>
-#include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/syscalls.h>
+#include <linux/fs.h>
+#include <linux/ip.h>
+#include <linux/in.h>
+#include <linux/netdevice.h>
+#include <linux/skbuff.h>         
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
-#include <linux/init.h>
-#include <asm-generic/types.h>
-#include <net/checksum.h>
+#include <asm/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("linux-simple-firewall");
@@ -21,7 +19,7 @@ MODULE_AUTHOR("dnair");
 struct iphdr *ip_header;	//ip header pointer
 static unsigned char *ip_address = "\xAC\x10\x01\x01";
 static unsigned char *sip_address = "\xAC\x10\x00\x02";
-
+int err = 0;
 static unsigned char *class1_beg;
 static unsigned char *class1_end;
 static unsigned char *class2_beg;
@@ -35,7 +33,7 @@ static unsigned char *class5_end;
 static unsigned char *class6_beg;
 static unsigned char *class6_end;
 
-char read_4bytes_data[5];
+char read_4byte_data[5];
 
 static struct nf_hook_ops netfilter_ops;                        
 static char *interface = "lo";                          
