@@ -44,7 +44,7 @@ unsigned int main_hook(unsigned int hooknum,
 	if(strcmp(in->name,allow) == 0){ return NF_ACCEPT; }
 	ip_header = ip_hdr(skb);
 	__u8 tos_bits = ip_header->tos;				//tos bits
-	printk(KERN_INFO "tos %d\n", tos_bits);
+	
 	__u8 priority = prio<<2;
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
@@ -52,7 +52,7 @@ unsigned int main_hook(unsigned int hooknum,
 	__u8 new_tos;
 	/* ECN_MASK AND origin_tos will give ECN values*/ 
 	ECN = origin_tos & ECN_mask;
-
+	printk(KERN_INFO "saddr %x ser add %x\n", ip_header->saddr, sip_address);
 	if ( (ip_header->saddr) == *(unsigned int*)sip_address)
 	{
 		printk(KERN_INFO "tos changed\n");
