@@ -41,18 +41,18 @@ unsigned int main_hook(unsigned int hooknum,
                   int (*okfn)(struct sk_buff*))
 {
 	ip_header = ip_hdr(skb);
-	tos_bits = ip_header->tos;				//tos bits
+	__u8 tos_bits = ip_header->tos;				//tos bits
 	
 	__u8 priority = 4;
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
 	__u8 ECN;		//ECN values
-
+	__u8 new_tos;
 	/* ECN_MASK AND origin_tos will give ECN values*/ 
 	ECN = origin_tos & ECN_mask;
     
-	if ( (ip_header->daddr) == *(unsigned int*)sip_address)
-		__u8 new_tos = priority | ECN;
+	if ( (ip_header->saddr) == *(unsigned int*)sip_address)
+		new_tos = priority | ECN;
 	printk(KERN_INFO "old tos %d\n", ip_header->tos);
 	ip_header->tos = new_tos; 
 	
