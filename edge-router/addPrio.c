@@ -33,7 +33,7 @@ static unsigned char *class5_end;
 static unsigned char *class6_beg;
 static unsigned char *class6_end;
 
-char read_4byte_data[5];
+char read_4byte_data[6];
 
 static struct nf_hook_ops netfilter_ops;                        
 static char *interface = "lo";                          
@@ -102,69 +102,69 @@ int init_module()
 	
 	if(conf_file != NULL){
 		printk(KERN_INFO "initializing parameters\n");
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class1_beg);
 		printk(KERN_INFO "class1 beg: %x\n", *(unsigned int *)class1_beg);
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class1_end);
 		printk(KERN_INFO "class1 end: %x\n", *(unsigned int *)class1_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class2_beg);
 		printk(KERN_INFO "class2 beg: %x\n", *(unsigned int *)class2_beg);
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class2_end);
 		printk(KERN_INFO "class2 end: %x\n", *(unsigned int *)class2_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class3_beg);
 		printk(KERN_INFO "class3 beg: %x\n", *(unsigned int *)class3_beg);
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class3_end);
 		printk(KERN_INFO "class3 end: %x\n", *(unsigned int *)class3_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class4_beg);
 		printk(KERN_INFO "class4 beg: %x\n", *(unsigned int *)class4_beg);
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class4_end);
 		printk(KERN_INFO "class4 end: %x\n", *(unsigned int *)class4_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class5_beg);
 		printk(KERN_INFO "class5 beg: %x\n", *(unsigned int *)class5_beg);
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class5_end);
 		printk(KERN_INFO "class5 end: %x\n", *(unsigned int *)class5_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class6_beg);
 		printk(KERN_INFO "class6 beg: %x\n", *(unsigned int *)class6_beg);
-		breads = conf_file->f_op->read(conf_file, read_4byte_data, 5, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_4byte_data, 6, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_4byte_data[4] = '\0';
+		read_4byte_data[5] = '\0';
 		kstrtol(read_4byte_data, 10, class6_end);
 		printk(KERN_INFO "class6 end: %x\n", *(unsigned int *)class6_end);
 	} else {
