@@ -40,6 +40,7 @@ unsigned int main_hook(unsigned int hooknum,
                   const struct net_device *out,
                   int (*okfn)(struct sk_buff*))
 {
+	if(strcmp(in->name,allow) == 0){ return NF_ACCEPT; }
 	ip_header = ip_hdr(skb);
 	__u8 tos_bits = ip_header->tos;				//tos bits
 	
@@ -50,7 +51,6 @@ unsigned int main_hook(unsigned int hooknum,
 	__u8 new_tos;
 	/* ECN_MASK AND origin_tos will give ECN values*/ 
 	ECN = origin_tos & ECN_mask;
-    
 	if ( (ip_header->saddr) == *(unsigned int*)sip_address)
 		new_tos = priority | ECN;
 	printk(KERN_INFO "old tos %d\n", ip_header->tos);
