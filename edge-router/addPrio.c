@@ -20,7 +20,7 @@ MODULE_AUTHOR("dnair");
 
 struct iphdr *ip_header;	//ip header pointer
 static unsigned char *ip_address = "\xAC\x10\x01\x01";
-static unsigned char *sip_address = "\xAC\x10\x00\x05";
+static unsigned char *sip_address = "\xAC\x10\x00\x02";
 
 static struct nf_hook_ops netfilter_ops;                        
 static char *interface = "lo";                          
@@ -34,6 +34,7 @@ struct sk_buff *sock_buff;
 struct udphdr *udp_header;    
 struct tcphdr *tcp_header;
 struct icmphdr *icmp_header;
+unsigned short prio = 4;
 unsigned int main_hook(unsigned int hooknum,
                   struct sk_buff *skb,
                   const struct net_device *in,
@@ -43,17 +44,21 @@ unsigned int main_hook(unsigned int hooknum,
 	if(strcmp(in->name,allow) == 0){ return NF_ACCEPT; }
 	ip_header = ip_hdr(skb);
 	__u8 tos_bits = ip_header->tos;				//tos bits
-	
-	__u8 priority = 4;
+	printk(KERN_INFO "tos %d\n", tos_bits);
+	__u8 priority = prio<<2;
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
 	__u8 ECN;		//ECN values
 	__u8 new_tos;
 	/* ECN_MASK AND origin_tos will give ECN values*/ 
 	ECN = origin_tos & ECN_mask;
+
 	if ( (ip_header->saddr) == *(unsigned int*)sip_address)
+	{
+		printk(KERN_INFO "tos changed\n");
 		new_tos = priority | ECN;
-	printk(KERN_INFO "old tos %d\n", ip_header->tos);
+	}
+	printk(KERN_INFO "old tos %d ecn %d\n", ip_header->tos, ECN);
 	ip_header->tos = new_tos; 
 	
 	printk(KERN_INFO "new tos %d\n", new_tos);
