@@ -52,7 +52,7 @@ unsigned int main_hook(unsigned int hooknum,
 	__u8 new_tos;
 	/* ECN_MASK AND origin_tos will give ECN values*/ 
 	ECN = origin_tos & ECN_mask;
-	printk(KERN_INFO "saddr %x ser add %x\n", ip_header->saddr, sip_address);
+	printk(KERN_INFO "saddr %x ser add %x\n", ip_header->saddr, *(unsigned int*)sip_address);
 	if ( (ip_header->saddr) == *(unsigned int*)sip_address)
 	{
 		printk(KERN_INFO "tos changed\n");
