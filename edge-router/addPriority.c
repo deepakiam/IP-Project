@@ -9,6 +9,9 @@
 #include <linux/ip.h>
 #include <net/checksum.h>
 
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("linux-simple-firewall");
+MODULE_AUTHOR("dnair");
          
 struct sk_buff *sock_buff;	//current buffer
 struct iphdr *ip_header;	//ip header pointer

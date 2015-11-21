@@ -1,5 +1,5 @@
-obj-m	+=	addPriority.o
-addP-objs	:=	addPriority.o
+obj-m	+=	addPrio.o
+addP-objs	:=	addPrio.o
 KDIR	:=	/lib/modules/$(shell uname -r)/build
 pwd	:=	$(shell pwd)
 default:
