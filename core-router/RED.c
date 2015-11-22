@@ -132,8 +132,12 @@ struct q_node* red(struct sk_buff* packet, long minth, long  maxth, long wq, lon
                 {
 				packet_count++;
                       		printk(KERN_INFO "packet average queue size in range. packet count : %lu\n", packet_count);
-                     		pa = (maxpb * (avg_queue_size - minth))/(maxth - minth);
-                       		//pa = (100*pb)/(100 - (packet_count * pb));
+                     		pb = (maxpb * (avg_queue_size - minth))/(maxth - minth);
+				if((packet_count * pb) < 100){
+                       			pa = (100*pb)/(100 - (packet_count * pb));
+				} else {
+					pa = pb;
+				}
 				printk(KERN_INFO "pa :%lu \n", pa);
                       		randm = get_random_number();
 				printk(KERN_INFO "random number : %lu  pb : %lu  pa : %lu \n", randm, pb, pa);
