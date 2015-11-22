@@ -17,7 +17,7 @@ typedef struct q_node q_node;
 extern long is_wred;
 extern int max_queue_size;
 extern int priority;
-extern int counter;
+extern long counter;
 
 /*variables used in RED.c*/
 
