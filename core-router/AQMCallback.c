@@ -360,6 +360,7 @@ void cleanup_module(void){
     nf_unregister_hook(&nfhops2);
 	printk(KERN_INFO "total packets served : %d\n", total_packet_count);
 	printk(KERN_INFO "current queue size: %d\n", queue_size);
+	printk(KERN_INFO "total packets marked : %d\n", packets_marked);
 	printk(KERN_INFO "number of total packets dropped : %d\n", packets_dropped);
 	printk(KERN_INFO "class 1 packets dropped : %d\n",c1_packets_dropped);
 	//printk(KERN_INFO)
