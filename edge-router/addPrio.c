@@ -107,8 +107,11 @@ int init_module()
 		printk(KERN_INFO "bytes read : %d\n", breads);
 		read_16byte_data[16] = '\0';
 		int i = 0;
-		for(i=0;i<17;i++)
+		for(i=0;i<17;i++){
 			printk(KERN_INFO "%dth byte read : %d\n", i, read_16byte_data[i]);
+			strncat(class1_beg, read_16byte_data[i],1);
+		}
+		printk(KERN_INFO "lets see this %x\n", class1_beg);
 	} else {
 		printk(KERN_INFO "error reading file!!");
 	}
