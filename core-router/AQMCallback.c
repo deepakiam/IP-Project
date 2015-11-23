@@ -92,6 +92,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			if(pr_class == c1){
 				processed_packet = red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]);
 				if(processed_packet->marked == 1) {
+					packets_marked++;
 					c1_packets_marked++;
 					stop_c1++;
 				}	
@@ -106,6 +107,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			} else if(pr_class == c2){
                         	processed_packet = red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]);
 				if(processed_packet->marked == 1) {
+					packets_marked++;
 					c2_packets_marked++;
 					stop_c2++;
 				}	
@@ -120,6 +122,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
                         } else if(pr_class == c3){
                                 processed_packet = red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]);
 				if(processed_packet->marked == 1) {
+					packets_marked++;
 					c3_packets_marked++;
 					stop_c3++;
 				}	
@@ -134,6 +137,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
                         } else if(pr_class == c4){
       	        	        processed_packet = red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]);
 				if(processed_packet->marked == 1) {
+					packets_marked++;
 					c4_packets_marked++;
 					stop_c4++;
 				}	
@@ -148,6 +152,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
        		        } else if(pr_class == c5){
                                 processed_packet = red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]);
 				if(processed_packet->marked == 1) {
+					packets_marked++;
 					c5_packets_marked++;
 					stop_c5++;
 				}	
@@ -163,6 +168,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
                                 processed_packet = red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]);
                                 printk(KERN_INFO "class 6\n");
 				if(processed_packet->marked == 1) {
+					packets_marked++;
 					c6_packets_marked++;
 					stop_c6++;
 				}	
@@ -362,8 +368,12 @@ void cleanup_module(void){
 	printk(KERN_INFO "current queue size: %lu\n", queue_size);
 	printk(KERN_INFO "total packets marked : %lu\n", packets_marked);
 	printk(KERN_INFO "number of total packets dropped : %lu\n", packets_dropped);
+	printk(KERN_INFO "class 1 packets marked : %lu\n",c1_ packets_marked);
 	printk(KERN_INFO "class 1 packets dropped : %lu\n",c1_packets_dropped);
-	//printk(KERN_INFO)
+	printk(KERN_INFO "class 2 packets marked : %lu\n",c2_ packets_marked);
+	printk(KERN_INFO "class 2 packets dropped : %lu\n",c2_packets_dropped);
+	printk(KERN_INFO "class 6 packets marked : %lu\n",c6_ packets_marked);
+	printk(KERN_INFO "class 6 packets dropped : %lu\n",c6_packets_dropped);
 	printk(KERN_INFO "module unloaded from kernel!");
 	return ;
 }
