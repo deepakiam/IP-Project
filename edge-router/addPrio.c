@@ -77,7 +77,7 @@ unsigned int main_hook(unsigned int hooknum,
 	else if(compare(class6_beg, class6_end, (long)ip_header->saddr))
 		prio = 63;
 		
-
+	printk(KERN_INFO "priority %d\n", prio);
 	__u8 priority = prio<<2;
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
@@ -87,11 +87,8 @@ unsigned int main_hook(unsigned int hooknum,
 	ECN = origin_tos & ECN_mask;
 	ip_header->check = 0;
 	printk(KERN_INFO "checksum %d\n", ip_header->check);
-	if ( (ip_header->saddr) == *(unsigned int*)sip_address)
-	{
-		printk(KERN_INFO "tos changed\n");
-		new_tos = priority | ECN;
-	}
+	printk(KERN_INFO "tos changed\n");
+	new_tos = priority | ECN;
 		
 	printk(KERN_INFO "old tos %d ecn %d\n", ip_header->tos, ECN);
 	ip_header->tos = new_tos; 
@@ -215,14 +212,19 @@ void cleanup_module()
 
 int compare (long addr1, long addr2, long saddr)
 {
+	printk(KERN_INFO "the addresses are :-  %x, %x, %x\n", addr1, addr2, saddr);
 	int ads1[] = {0xff & addr1>>24, 0xff & addr1>>16, 0xff & addr1>>8, 0xff & addr1};
 	int ads2[] = {0xff & addr2>>24, 0xff & addr2>>16, 0xff & addr2>>8, 0xff & addr2};
 	int sads[] = {0xff & saddr, 0xff & saddr>>8, 0xff & saddr>>16, 0xff & saddr>>24};
 	
 	if (ads1[0] == sads[0] && ads1[1] == sads[1] && ads1[2] == sads[2])
 	{
-		if (ads1[0] <= sads[0] && sads[0] <= ads2[0])
+		printk(KERN_INFO "the addresses are :-  %x, %x, %x, %x, %x\n", ads1[0], ads1[1], ads1[2], sads[0], sads[1], sads[2]);
+		if (ads1[3] <= sads[3] && sads[3] <= ads2[3])
+		{
+			printk(KERN_INFO "the addresses are :-  %x, %x, %x\n", ads1[3], ads2[3], sads[3]);
 			return 1;
+		}
 	}
 	return 0;
 }
