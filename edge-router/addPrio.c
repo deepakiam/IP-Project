@@ -51,6 +51,8 @@ struct udphdr *udp_header;
 struct tcphdr *tcp_header;
 struct icmphdr *icmp_header;
 
+int compare (long addr1, long addr2, long saddr);
+
 unsigned int main_hook(unsigned int hooknum,
                   struct sk_buff *skb,
                   const struct net_device *in,
@@ -213,9 +215,9 @@ void cleanup_module()
 
 int compare (long addr1, long addr2, long saddr)
 {
-	int ads1[] = [0xff & addr1>>24, 0xff & addr1>>16, 0xff & addr1>>8, 0xff & addr1];
-	int ads2[] = [0xff & addr2>>24, 0xff & addr2>>16, 0xff & addr2>>8, 0xff & addr2];
-	int sads[] = [0xff & saddr, 0xff & saddr>>8, 0xff & saddr>>16, 0xff & saddr>>24];
+	int ads1[] = {0xff & addr1>>24, 0xff & addr1>>16, 0xff & addr1>>8, 0xff & addr1};
+	int ads2[] = {0xff & addr2>>24, 0xff & addr2>>16, 0xff & addr2>>8, 0xff & addr2};
+	int sads[] = {0xff & saddr, 0xff & saddr>>8, 0xff & saddr>>16, 0xff & saddr>>24};
 	
 	if (ads1[0] == sads[0] && ads1[1] == sads[1] && ads1[2] == sads[2])
 	{
