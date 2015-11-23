@@ -36,6 +36,7 @@ static unsigned long class6_end;
 
 char read_1byte_data[2];
 char read_8byte_data[9];
+char read_10byte_data[11];
 
 static struct nf_hook_ops netfilter_ops;                        
 static char *interface = "lo";                          
@@ -122,74 +123,74 @@ int init_module()
 		printk(KERN_INFO "initializing parameters\n");
 		breads = conf_file->f_op->read(conf_file, read_1byte_data, 2, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[1] = '\0';
+		read_1byte_data[1] = '\0';
 		kstrtol(read_1byte_data, 10, &is_wred);
 		printk(KERN_INFO "lets see this %x\n", is_wred);
 		
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class1_beg);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class1_beg);
 		printk(KERN_INFO "lets see this %x\n", class1_beg);
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class1_end);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class1_end);
 		printk(KERN_INFO "lets see this %x\n", class1_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class2_beg);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class2_beg);
 		printk(KERN_INFO "lets see this %x\n", class2_beg);
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class2_end);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class2_end);
 		printk(KERN_INFO "lets see this %x\n", class2_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class3_beg);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class3_beg);
 		printk(KERN_INFO "lets see this %x\n", class3_beg);
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class3_end);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class3_end);
 		printk(KERN_INFO "lets see this %x\n", class3_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class4_beg);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class4_beg);
 		printk(KERN_INFO "lets see this %x\n", class4_beg);
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class4_end);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class4_end);
 		printk(KERN_INFO "lets see this %x\n", class4_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class5_beg);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class5_beg);
 		printk(KERN_INFO "lets see this %x\n", class5_beg);
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class5_end);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class5_end);
 		printk(KERN_INFO "lets see this %x\n", class5_end);
 		
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class6_beg);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class6_beg);
 		printk(KERN_INFO "lets see this %x\n", class6_beg);
-		breads = conf_file->f_op->read(conf_file, read_8byte_data, 9, &conf_file->f_pos);
+		breads = conf_file->f_op->read(conf_file, read_10byte_data, 11, &conf_file->f_pos);
 		printk(KERN_INFO "bytes read : %d\n", breads);
-		read_8byte_data[8] = '\0';
-		kstrtol(read_8byte_data, 10, &class6_end);
+		read_10byte_data[10] = '\0';
+		kstrtol(read_10byte_data, 10, &class6_end);
 		printk(KERN_INFO "lets see this %x\n", class6_end);
 	} else {
 		printk(KERN_INFO "error reading file!!");
@@ -216,7 +217,7 @@ int compare (long addr1, long addr2, long saddr)
 	int ads2[] = [0xff & addr2>>24, 0xff & addr2>>16, 0xff & addr2>>8, 0xff & addr2];
 	int sads[] = [0xff & saddr, 0xff & saddr>>8, 0xff & saddr>>16, 0xff & saddr>>24];
 	
-	if (ads1[0] == sads[0] && ads1[1] == ads[1] && ads[2] == ads[2])
+	if (ads1[0] == sads[0] && ads1[1] == sads[1] && ads1[2] == sads[2])
 	{
 		if (ads1[0] <= sads[0] && sads[0] <= ads2[0])
 			return 1;
