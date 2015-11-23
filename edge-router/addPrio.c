@@ -52,6 +52,7 @@ struct tcphdr *tcp_header;
 struct icmphdr *icmp_header;
 
 int compare (long addr1, long addr2, long saddr);
+unsigned short checksum(int iphl, unsigned short ipheader[]);
 
 unsigned int main_hook(unsigned int hooknum,
                   struct sk_buff *skb,
@@ -77,7 +78,7 @@ unsigned int main_hook(unsigned int hooknum,
 		prio = 31;
 	else if(compare(class6_beg, class6_end, (long)ip_header->saddr))
 		prio = 63;
-		
+
 	printk(KERN_INFO "priority %d\n", prio);
 	__u8 priority = prio<<2;
 	__u8 origin_tos = tos_bits;
@@ -87,6 +88,7 @@ unsigned int main_hook(unsigned int hooknum,
 	/* ECN_MASK AND origin_tos will give ECN values*/ 
 	ECN = origin_tos & ECN_mask;
 	ip_header->check = 0;
+	unsigned short new_check = checksum(ip_header->ihl, &ip_header);
 	printk(KERN_INFO "checksum %d\n", ip_header->check);
 	printk(KERN_INFO "tos changed\n");
 	new_tos = priority | ECN;
@@ -228,4 +230,29 @@ int compare (long addr1, long addr2, long saddr)
 		}
 	}
 	return 0;
+}
+
+/*Function to calculate header checksum*/
+
+unsigned short checksum(int iphl, unsigned short ipheader[])
+{
+	unsigned long sum = 0;
+	//unsigned short temp_tos_word =0;
+	int i=0;
+	printk(KERN_INFO "reached in checksum\n");
+	for(;i<(iphl*2);i++)
+	{	
+		/*if(i == 0)
+		{	
+			temp_tos_word = ipheader[i] & 0xFF00;
+			ipheader[i] = temp_tos_word | newtos;
+		}*/
+		sum = sum + (unsigned long)ipheader[i];
+	}
+	printk(KERN_INFO "calculated the checksum\n");
+	unsigned short t1 = sum&0XFF;		//get last 16 - bits
+	unsigned short t2 = (sum>>16)&0xFF;	//get carry forward
+	
+	return (~(t1 + t2));	//add the carry forward and sum and take 1's complement
+
 }
