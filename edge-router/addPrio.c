@@ -49,7 +49,7 @@ struct sk_buff *sock_buff;
 struct udphdr *udp_header;    
 struct tcphdr *tcp_header;
 struct icmphdr *icmp_header;
-unsigned short prio = 4;
+
 unsigned int main_hook(unsigned int hooknum,
                   struct sk_buff *skb,
                   const struct net_device *in,
@@ -59,7 +59,22 @@ unsigned int main_hook(unsigned int hooknum,
 	if(strcmp(in->name,allow) == 0){ return NF_ACCEPT; }
 	ip_header = ip_hdr(skb);
 	__u8 tos_bits = ip_header->tos;				//tos bits
-	
+	unsigned short prio = 63;
+
+	if (compare(class1_beg, class1_end, (long)ip_header->saddr))
+		prio = 1;
+	else if(compare(class2_beg, class2_end, (long)ip_header->saddr))
+		prio = 3;
+	else if(compare(class3_beg, class3_end, (long)ip_header->saddr))
+		prio = 7;
+	else if(compare(class4_beg, class4_end, (long)ip_header->saddr))
+		prio = 15;
+	else if(compare(class5_beg, class5_end, (long)ip_header->saddr))
+		prio = 31;
+	else if(compare(class6_beg, class6_end, (long)ip_header->saddr))
+		prio = 63;
+		
+
 	__u8 priority = prio<<2;
 	__u8 origin_tos = tos_bits;
 	__u8 ECN_mask = 3;	//ECN mask to get ECN bits
@@ -74,6 +89,7 @@ unsigned int main_hook(unsigned int hooknum,
 		printk(KERN_INFO "tos changed\n");
 		new_tos = priority | ECN;
 	}
+		
 	printk(KERN_INFO "old tos %d ecn %d\n", ip_header->tos, ECN);
 	ip_header->tos = new_tos; 
 	
@@ -192,4 +208,18 @@ return 0;
 void cleanup_module() 
 {
 	nf_unregister_hook(&netfilter_ops); 
+}
+
+int compare (long addr1, long addr2, long saddr)
+{
+	int ads1[] = [0xff & addr1>>24, 0xff & addr1>>16, 0xff & addr1>>8, 0xff & addr1];
+	int ads2[] = [0xff & addr2>>24, 0xff & addr2>>16, 0xff & addr2>>8, 0xff & addr2];
+	int sads[] = [0xff & saddr, 0xff & saddr>>8, 0xff & saddr>>16, 0xff & saddr>>24];
+	
+	if (ads1[0] == sads[0] && ads1[1] == ads[1] && ads[2] == ads[2])
+	{
+		if (ads1[0] <= sads[0] && sads[0] <= ads2[0])
+			return 1;
+	}
+	return 0;
 }
