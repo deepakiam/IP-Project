@@ -36,9 +36,12 @@ void enqueue(struct q_node* node){
 		if(q_size_dec_count%3 == 1){
 			queue_size -=30;
 		} else if(q_size_dec_count%3 == 2) {
-			queue_size-=35;
-		}else {
-			queue_size-=30;
+			if(q_size_dec_count%6 == 5) {queue_size-=100;}
+			else {queue_size-=35;}
+		} else if(q_size_dec_count%3 == 0) {
+			queue_size-=40;
+		} else {
+			queue_size-=40;
 		}
 	}
 //	if(counter%75 == 74){
@@ -132,9 +135,14 @@ struct q_node* red(struct sk_buff* packet, long minth, long  maxth, long wq, lon
                 {
 				packet_count++;
                       		printk(KERN_INFO "packet average queue size in range. packet count : %lu\n", packet_count);
-                     		pa = (maxpb * (avg_queue_size - minth))/(maxth - minth);
-                       		//pa = (100*pb)/(100 - (packet_count * pb));
-				printk(KERN_INFO "pa :%lu \n", pa);
+                     		pb = (maxpb * (avg_queue_size - minth))/(maxth - minth);
+				if((packet_count * pb) < 100){
+                       			pa = (100*pb)/(100 - (packet_count * pb));
+				} else {
+					printk(KERN_INFO "setting pa = pb\n");
+					pa = pb;
+				}
+				//printk(KERN_INFO "pa :%lu \n", pa);
                       		randm = get_random_number();
 				printk(KERN_INFO "random number : %lu  pb : %lu  pa : %lu \n", randm, pb, pa);
                       		if (randm < pa)
@@ -153,7 +161,7 @@ struct q_node* red(struct sk_buff* packet, long minth, long  maxth, long wq, lon
                 else
                 {
                       	printk(KERN_INFO "packet count reset\n");	
-			packet_count = -1;
+			packet_count = 0;
                 }
 				
 	return new_node;
