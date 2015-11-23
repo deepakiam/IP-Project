@@ -368,11 +368,11 @@ void cleanup_module(void){
 	printk(KERN_INFO "current queue size: %lu\n", queue_size);
 	printk(KERN_INFO "total packets marked : %lu\n", packets_marked);
 	printk(KERN_INFO "number of total packets dropped : %lu\n", packets_dropped);
-	printk(KERN_INFO "class 1 packets marked : %lu\n",c1_ packets_marked);
+	printk(KERN_INFO "class 1 packets marked : %lu\n",c1_packets_marked);
 	printk(KERN_INFO "class 1 packets dropped : %lu\n",c1_packets_dropped);
-	printk(KERN_INFO "class 2 packets marked : %lu\n",c2_ packets_marked);
+	printk(KERN_INFO "class 2 packets marked : %lu\n",c2_packets_marked);
 	printk(KERN_INFO "class 2 packets dropped : %lu\n",c2_packets_dropped);
-	printk(KERN_INFO "class 6 packets marked : %lu\n",c6_ packets_marked);
+	printk(KERN_INFO "class 6 packets marked : %lu\n",c6_packets_marked);
 	printk(KERN_INFO "class 6 packets dropped : %lu\n",c6_packets_dropped);
 	printk(KERN_INFO "module unloaded from kernel!");
 	return ;
