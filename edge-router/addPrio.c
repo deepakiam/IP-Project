@@ -60,6 +60,7 @@ unsigned int main_hook(unsigned int hooknum,
                   int (*okfn)(struct sk_buff*))
 {
 	if(strcmp(in->name,allow) == 0){ return NF_ACCEPT; }
+	if (is_wred == 0){return NF_ACCEPT;}
 	ip_header = ip_hdr(skb);
 	__u8 tos_bits = ip_header->tos;				//tos bits
 	unsigned short prio = 63;
