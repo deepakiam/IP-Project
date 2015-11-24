@@ -169,7 +169,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 				}
 				enqueue(processed_packet);
        		        } else if(pr_class == c5){
-				c5_packets_served;
+				c5_packets_served++;
                                 processed_packet = red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]);
 				if(processed_packet->marked == 1) {
 					packets_marked++;
@@ -221,7 +221,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 				enqueue(processed_packet);
 			}**/
 		}
-        }else{
+        }else if(is_wred == 0){
 		printk(KERN_INFO "No WRED implemented");
 		processed_packet = red(skb, minthred, maxthred, wqred, maxpbred);	//invoke red here for packet processing
 		if(processed_packet->marked == 1){
@@ -236,6 +236,12 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			return NF_DROP;
 		}
 		enqueue(processed_packet);
+	} else {
+		printk(KERN_INFO "tail drop active\n");
+		if(total_packet_count % 1000 > 750 && total_packet_count % 900 < 999){
+			packets_dropped++;
+			return NF_DROP;
+		}
 	}
 	
 	printk(KERN_INFO "executing the AQM hook function");
