@@ -113,6 +113,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					c1_packets_dropped++;
 					stop_c1--;
 					queue_size-=1;
+					printk(KERN_INFO "class 1 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -129,6 +130,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					c2_packets_dropped++;
 					stop_c2--;
 					queue_size-=1;
+					printk(KERN_INFO "class 2 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -145,6 +147,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					c3_packets_dropped++;
 					stop_c3--;
 					queue_size-=1;
+					printk(KERN_INFO "class 3 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -161,6 +164,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					c4_packets_dropped++;
 					stop_c4--;
 					queue_size-=1;
+					printk(KERN_INFO "class 34 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -177,6 +181,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					c5_packets_dropped++;
 					stop_c5--;
 					queue_size-=1;
+					printk(KERN_INFO "class 5 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -194,6 +199,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					c6_packets_dropped++;
 					stop_c6--;
 					queue_size-=1;
+					printk(KERN_INFO "class 6 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -385,10 +391,13 @@ void cleanup_module(void){
 	printk(KERN_INFO "current queue size: %lu\n", queue_size);
 	printk(KERN_INFO "total packets marked : %lu\n", packets_marked);
 	printk(KERN_INFO "number of total packets dropped : %lu\n", packets_dropped);
+	printk(KERN_INFO "total packets c1 : %lu\n", c1_packets_served);
 	printk(KERN_INFO "class 1 packets marked : %lu\n",c1_packets_marked);
 	printk(KERN_INFO "class 1 packets dropped : %lu\n",c1_packets_dropped);
+	printk(KERN_INFO "total packets c2 : %lu\n", c2_packets_served);
 	printk(KERN_INFO "class 2 packets marked : %lu\n",c2_packets_marked);
 	printk(KERN_INFO "class 2 packets dropped : %lu\n",c2_packets_dropped);
+	printk(KERN_INFO "total packets c6 : %lu\n", c6_packets_served);
 	printk(KERN_INFO "class 6 packets marked : %lu\n",c6_packets_marked);
 	printk(KERN_INFO "class 6 packets dropped : %lu\n",c6_packets_dropped);
 	printk(KERN_INFO "module unloaded from kernel!");
