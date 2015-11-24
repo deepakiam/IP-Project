@@ -17,6 +17,7 @@ MODULE_DESCRIPTION("linux-simple-firewall");
 MODULE_AUTHOR("dnair");
 
 struct iphdr *ip_header;	//ip header pointer
+struct iphdr ipdr;
 static unsigned char *ip_address = "\xAC\x10\x01\x01";
 static unsigned char *sip_address = "\xAC\x10\x00\x02";
 int err = 0;
@@ -63,6 +64,7 @@ unsigned int main_hook(unsigned int hooknum,
 	if(strcmp(in->name,allow) == 0){ return NF_ACCEPT; }
 	if (is_wred == 0){return NF_ACCEPT;}
 	ip_header = ip_hdr(skb);
+//	ipdr = ip_hdr(skb);
 	__u8 tos_bits = ip_header->tos;				//tos bits
 	unsigned short prio = 63;
 
@@ -88,8 +90,11 @@ unsigned int main_hook(unsigned int hooknum,
 	/* ECN_MASK AND origin_tos will give ECN values*/ 
 	ECN = origin_tos & ECN_mask;
 	ip_header->check = 0;
-	unsigned short new_check = checksum(ip_header->ihl, &ip_header);
-	printk(KERN_INFO "checksum %d\n", ip_header->check);
+//	unsigned short new_check = checksum(ip_header->ihl, ip_header);
+//	unsigned short new_check = checksum(ip_header->ihl, (unsigned short *) ip_header);
+//	csum_replace2(ip_header, ip_header->check, &new_check);
+//	ip_header->check = new_check;
+//	printk(KERN_INFO "checksum %d\n", ip_header->check);
 	printk(KERN_INFO "tos changed\n");
 	new_tos = priority | ECN;
 		
@@ -98,7 +103,10 @@ unsigned int main_hook(unsigned int hooknum,
 	
 	printk(KERN_INFO "new tos %d\n", new_tos);
 	//recalulate checksum and set
-
+	unsigned short new_check = checksum(ip_header->ihl, (unsigned short *) ip_header);
+//        csum_replace2(ip_header, ip_header->check, &new_check);
+        ip_header->check = new_check;
+        printk(KERN_INFO "checksum %d\n", ip_header->check);
 	//csum_replace2(&ip_header->check, htons(origin_tos), htons(new_tos));
 
 	return NF_ACCEPT;
@@ -234,25 +242,60 @@ int compare (long addr1, long addr2, long saddr)
 
 /*Function to calculate header checksum*/
 
-unsigned short checksum(int iphl, unsigned short ipheader[])
+//unsigned short checksum(int iphl, unsigned short ipheader[])
+//unsigned short checksum(int iphl, struct iphdr *addr)
+unsigned short checksum(int iphl, unsigned short *addr)
 {
+	int count = iphl*2;
 	unsigned long sum = 0;
+	unsigned short ans = 0;
 	//unsigned short temp_tos_word =0;
 	int i=0;
-	printk(KERN_INFO "reached in checksum\n");
-	for(;i<(iphl*2);i++)
-	{	
+//	printk(KERN_INFO "reached in checksum\n");
+//	for(;i<(iphl*2);i++)
+//	{	
 		/*if(i == 0)
 		{	
 			temp_tos_word = ipheader[i] & 0xFF00;
 			ipheader[i] = temp_tos_word | newtos;
 		}*/
-		sum = sum + (unsigned long)ipheader[i];
-	}
-	printk(KERN_INFO "calculated the checksum\n");
-	unsigned short t1 = sum&0XFF;		//get last 16 - bits
-	unsigned short t2 = (sum>>16)&0xFF;	//get carry forward
+//		sum = sum + (unsigned long)ipheader[i];
+//	}
+//	printk(KERN_INFO "calculated the checksum\n");
+//	unsigned short t1 = sum&0XFF;		//get last 16 - bits
+//	unsigned short t2 = (sum>>16)&0xFF;	//get carry forward
 	
-	return (~(t1 + t2));	//add the carry forward and sum and take 1's complement
+//	return (~(t1 + t2));	//add the carry forward and sum and take 1's complement
 
+//	while (iphl > 0)
+/*	for(;i<iphl;i++)
+	{
+		sum = sum + (unsigned short)ipheader[i];
+		if (sum & 0x80000000)
+			sum = (sum & 0xffff) + (sum >> 16);
+	}
+
+	while (sum >>16)
+		sum = (sum & 0xFFFF) + (sum >> 16);
+
+	return (~sum);
+*/
+	printk(KERN_INFO "%d count\n", count);
+	while (count > 0)
+	{
+		sum += *(addr);
+		count -= 1;
+		printk(KERN_INFO "%d th 2 bytes %x, %d\n", count, *(addr), *(addr));
+		if (sum & 0x80000000)
+                        sum = (sum & 0xffff) + (sum >> 16);
+		printk(KERN_INFO "current sum : - %d. %x\n", sum, sum);
+		addr++;
+	}
+	if (count > 0)
+		sum += *(uint8_t *) addr;
+	while (sum >> 16) {
+    		sum = (sum & 0xffff) + (sum >> 16);
+  	}
+	
+	return (~sum);
 }
