@@ -337,9 +337,9 @@ int init_module(void){
 			kstrtol(read_3bytes_data, 10, &minths[i]);
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
-			conf_file->f_op->read(conf_file, read_4bytes_data, 5, &conf_file->f_pos);
-			read_4bytes_data[4] = '\0';
-			kstrtol(read_4bytes_data, 10, &maxths[i]);
+			conf_file->f_op->read(conf_file, read_3bytes_data, 4, &conf_file->f_pos);
+			read_3bytes_data[3] = '\0';
+			kstrtol(read_3bytes_data, 10, &maxths[i]);
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
 			conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
