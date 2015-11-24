@@ -36,12 +36,16 @@ void enqueue(struct q_node* node){
 		if(q_size_dec_count%3 == 1){
 			queue_size -=30;
 		} else if(q_size_dec_count%3 == 2) {
-			if(q_size_dec_count%6 == 5) {queue_size-=100;}
+			if(q_size_dec_count%12 == 5) {queue_size-=35;}
+			else if(q_size_dec_count%12 == 11) {queue_size-=35;}
 			else {queue_size-=35;}
-		} else if(q_size_dec_count%3 == 0) {
-			queue_size-=40;
-		} else {
-			queue_size-=40;
+		}else{ 
+			if(q_size_dec_count%16 == 15){
+				if (queue_size > 250){queue_size-40;}
+				else{queue_size-=40;}
+			}else {
+				queue_size-=40;
+			}
 		}
 	}
 //	if(counter%75 == 74){
