@@ -87,11 +87,8 @@ unsigned int main_hook(unsigned int hooknum,
 	ECN = origin_tos & ECN_mask;
 	ip_header->check = 0;
 	printk(KERN_INFO "checksum %d\n", ip_header->check);
-	if ( (ip_header->saddr) == *(unsigned int*)sip_address)
-	{
-		printk(KERN_INFO "tos changed\n");
-		new_tos = priority | ECN;
-	}
+	printk(KERN_INFO "tos changed\n");
+	new_tos = priority | ECN;
 		
 	printk(KERN_INFO "old tos %d ecn %d\n", ip_header->tos, ECN);
 	ip_header->tos = new_tos; 
@@ -221,7 +218,7 @@ int compare (long addr1, long addr2, long saddr)
 	
 	if (ads1[0] == sads[0] && ads1[1] == sads[1] && ads1[2] == sads[2])
 	{
-		if (ads1[0] <= sads[0] && sads[0] <= ads2[0])
+		if (ads1[3] <= sads[3] && sads[3] <= ads2[3])
 			return 1;
 	}
 	return 0;
