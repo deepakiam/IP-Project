@@ -44,6 +44,12 @@ static const unsigned int c5 = 124;
 static const unsigned int c6 = 252;
 long counter = 0;
 long packets_marked = 0;
+long c1_packets_served = 0;
+long c2_packets_served = 0;
+long c3_packets_served = 0;
+long c4_packets_served = 0;
+long c5_packets_served = 0;
+long c6_packets_served = 0;
 long c1_packets_marked = 0;
 long c2_packets_marked = 0;
 long c3_packets_marked = 0;
@@ -68,6 +74,10 @@ long stop = 0;
 void deq_drop_pack(){
 	//dequeue();
 	packets_dropped++;
+	if(packets_dropped % 40 == 30){
+		queue_size -= 40;
+		printk(KERN_INFO "40 packets dropped so decrease q size to %lu\n", queue_size);
+	}
 	return;
 }
 
@@ -76,6 +86,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
                        const struct net_device *out, int (*okfn)(struct sk_buff *)){
 	processed_packet = kmalloc(sizeof(q_node), GFP_KERNEL);
 	total_packet_count++;
+	//if(packets_dropped%40 == 30){queue_size-=20;}
         if(is_wred == 1){
 		printk(KERN_INFO "WRED implemented\n");
 		ip_header = ip_hdr(skb);
@@ -90,6 +101,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 			pr_class = tos & tos_mask;				// bitwise and with mask value to get DSCP bits
 			printk(KERN_INFO "priority class : %u \n", pr_class);
 			if(pr_class == c1){
+				c1_packets_served++;
 				processed_packet = red(skb,minths[0],maxths[0],wqs[0],maxpbs[0]);
 				if(processed_packet->marked == 1) {
 					packets_marked++;
@@ -100,11 +112,13 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					deq_drop_pack();
 					c1_packets_dropped++;
 					stop_c1--;
-					queue_size--;
+					queue_size-=1;
+					printk(KERN_INFO "class 1 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
 			} else if(pr_class == c2){
+				c2_packets_served++;
                         	processed_packet = red(skb,minths[1],maxths[1],wqs[1],maxpbs[1]);
 				if(processed_packet->marked == 1) {
 					packets_marked++;
@@ -115,11 +129,13 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					deq_drop_pack();
 					c2_packets_dropped++;
 					stop_c2--;
-					queue_size--;
+					queue_size-=1;
+					printk(KERN_INFO "class 2 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
                         } else if(pr_class == c3){
+				c3_packets_served++;
                                 processed_packet = red(skb,minths[2],maxths[2],wqs[2],maxpbs[2]);
 				if(processed_packet->marked == 1) {
 					packets_marked++;
@@ -130,11 +146,13 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					deq_drop_pack();
 					c3_packets_dropped++;
 					stop_c3--;
-					queue_size--;
+					queue_size-=1;
+					printk(KERN_INFO "class 3 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
                         } else if(pr_class == c4){
+				c4_packets_served++;
       	        	        processed_packet = red(skb,minths[3],maxths[3],wqs[3],maxpbs[3]);
 				if(processed_packet->marked == 1) {
 					packets_marked++;
@@ -145,11 +163,13 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					deq_drop_pack();
 					c4_packets_dropped++;
 					stop_c4--;
-					queue_size--;
+					queue_size-=1;
+					printk(KERN_INFO "class 34 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
        		        } else if(pr_class == c5){
+				c5_packets_served++;
                                 processed_packet = red(skb,minths[4],maxths[4],wqs[4],maxpbs[4]);
 				if(processed_packet->marked == 1) {
 					packets_marked++;
@@ -160,11 +180,13 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					deq_drop_pack();
 					c5_packets_dropped++;
 					stop_c5--;
-					queue_size--;
+					queue_size-=1;
+					printk(KERN_INFO "class 5 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
                         } else {
+				c6_packets_served++;
                                 processed_packet = red(skb,minths[5],maxths[5],wqs[5],maxpbs[5]);
                                 printk(KERN_INFO "class 6\n");
 				if(processed_packet->marked == 1) {
@@ -176,7 +198,8 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 					deq_drop_pack();
 					c6_packets_dropped++;
 					stop_c6--;
-					queue_size--;
+					queue_size-=1;
+					printk(KERN_INFO "class 6 packet dropped\n");
 					return NF_DROP;
 				}
 				enqueue(processed_packet);
@@ -198,7 +221,7 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 				enqueue(processed_packet);
 			}**/
 		}
-        }else{
+        }else if(is_wred == 0){
 		printk(KERN_INFO "No WRED implemented");
 		processed_packet = red(skb, minthred, maxthred, wqred, maxpbred);	//invoke red here for packet processing
 		if(processed_packet->marked == 1){
@@ -208,11 +231,17 @@ static unsigned int aqm_hook(unsigned int hooknum, struct sk_buff *skb, const st
 		if(processed_packet->marked == 1 && queue_size > ((80*maxthred)/100) && stop > 0){
 			deq_drop_pack();
 			stop--;
-			queue_size--;
+			queue_size-=1;
 			printk(KERN_INFO "dropping packets normal RED\n");
 			return NF_DROP;
 		}
 		enqueue(processed_packet);
+	} else {
+		printk(KERN_INFO "tail drop active\n");
+		if(total_packet_count % 1000 > 750 && total_packet_count % 900 < 999){
+			packets_dropped++;
+			return NF_DROP;
+		}
 	}
 	
 	printk(KERN_INFO "executing the AQM hook function");
@@ -309,14 +338,14 @@ int init_module(void){
 		for(i = 0; i < n; i++){
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
-			conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
-			read_2bytes_data[2] = '\0';
-			kstrtol(read_2bytes_data, 10, &minths[i]);
+			conf_file->f_op->read(conf_file, read_3bytes_data, 4, &conf_file->f_pos);
+			read_3bytes_data[3] = '\0';
+			kstrtol(read_3bytes_data, 10, &minths[i]);
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
-			conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
-			read_2bytes_data[2] = '\0';
-			kstrtol(read_2bytes_data, 10, &maxths[i]);
+			conf_file->f_op->read(conf_file, read_3bytes_data, 4, &conf_file->f_pos);
+			read_3bytes_data[3] = '\0';
+			kstrtol(read_3bytes_data, 10, &maxths[i]);
 			//sys_read(fd, read, 1);
 			//conf_file->f_op->read(conf_file, read_1byte_data, 1, &conf_file->f_pos);
 			conf_file->f_op->read(conf_file, read_2bytes_data, 3, &conf_file->f_pos);
@@ -368,10 +397,13 @@ void cleanup_module(void){
 	printk(KERN_INFO "current queue size: %lu\n", queue_size);
 	printk(KERN_INFO "total packets marked : %lu\n", packets_marked);
 	printk(KERN_INFO "number of total packets dropped : %lu\n", packets_dropped);
+	printk(KERN_INFO "total packets c1 : %lu\n", c1_packets_served);
 	printk(KERN_INFO "class 1 packets marked : %lu\n",c1_packets_marked);
 	printk(KERN_INFO "class 1 packets dropped : %lu\n",c1_packets_dropped);
+	printk(KERN_INFO "total packets c2 : %lu\n", c2_packets_served);
 	printk(KERN_INFO "class 2 packets marked : %lu\n",c2_packets_marked);
 	printk(KERN_INFO "class 2 packets dropped : %lu\n",c2_packets_dropped);
+	printk(KERN_INFO "total packets c6 : %lu\n", c6_packets_served);
 	printk(KERN_INFO "class 6 packets marked : %lu\n",c6_packets_marked);
 	printk(KERN_INFO "class 6 packets dropped : %lu\n",c6_packets_dropped);
 	printk(KERN_INFO "module unloaded from kernel!");
