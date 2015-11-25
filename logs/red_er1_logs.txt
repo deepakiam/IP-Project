@@ -1,0 +1,28 @@
+[177732.512337] initialize kernel module
+[177732.512344] initializing parameters
+[177732.512356] bytes read : 2
+[177732.512357] lets see this 0
+[177732.512358] bytes read : 11
+[177732.512359] lets see this c0000100
+[177732.512360] bytes read : 11
+[177732.512361] lets see this c0000127
+[177732.512361] bytes read : 11
+[177732.512362] lets see this c0000128
+[177732.512363] bytes read : 11
+[177732.512364] lets see this c000014f
+[177732.512364] bytes read : 11
+[177732.512365] lets see this c0000150
+[177732.512366] bytes read : 11
+[177732.512367] lets see this c0000177
+[177732.512367] bytes read : 11
+[177732.512368] lets see this c0000178
+[177732.512369] bytes read : 11
+[177732.512370] lets see this c000019f
+[177732.512370] bytes read : 11
+[177732.512371] lets see this c00001a0
+[177732.512372] bytes read : 11
+[177732.512372] lets see this c00001c7
+[177732.512373] bytes read : 11
+[177732.512374] lets see this c00001c8
+[177732.512375] bytes read : 11
+[177732.512376] lets see this c00001fe
